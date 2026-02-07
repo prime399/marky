@@ -6,7 +6,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { EyeDropperIcon } from "./SVG";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
@@ -16,7 +16,8 @@ import ColorWheel from "./ColorWheel";
 import StrokeWeight from "./StrokeWeight";
 
 const RadialMenu = (props) => {
-  const [contentState, setContentState] = React.useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const ref = React.useRef(null);
   const buttonRef = React.useRef(null);
   const radialMenuRef = React.useRef(null);

@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const TimeSetter = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [hours, setHours] = useState(Math.floor(contentState.alarmTime / 3600));
   const [minutes, setMinutes] = useState(
     Math.floor((contentState.alarmTime % 3600) / 60)

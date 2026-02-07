@@ -1,11 +1,12 @@
 import React, { useContext } from "react";
 import styles from "../../styles/edit/_EditorNav.module.scss";
-import { ContentStateContext } from "../../context/ContentState";
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState";
 
 const URL = "/assets/";
 
 const AudioNav = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext);
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter();
 
   const handleCancel = () => {
     setContentState((prev) => ({

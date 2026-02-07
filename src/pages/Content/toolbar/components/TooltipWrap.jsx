@@ -3,10 +3,11 @@ import React, { useEffect, useContext, useState } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const TooltipWrap = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const classname = props.name ? props.name : "";
   const [override, setOverride] = useState("");
   const content =

@@ -10,10 +10,11 @@ const URL =
   "chrome-extension://" + chrome.i18n.getMessage("@@extension_id") + "/assets/";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const CropUI = (props) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   const handleWidth = (e) => {
     let value = e.target.value;

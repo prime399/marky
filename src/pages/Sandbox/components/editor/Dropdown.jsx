@@ -9,10 +9,11 @@ import styles from "../../styles/edit/_Dropdown.module.scss";
 //import CheckWhiteIcon from "../../public/assets/icons/check-white.svg";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const Dropdown = (props) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   const [label, setLabel] = useState("None");
   const [value, setValue] = useState("none");

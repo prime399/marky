@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 
 const Modal = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [title, setTitle] = useState("Test");
   const [description, setDescription] = useState("Description here");
   const [button1, setButton1] = useState("Submit");

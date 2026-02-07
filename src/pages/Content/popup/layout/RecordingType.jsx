@@ -4,7 +4,7 @@ import Dropdown from "../components/Dropdown";
 import Switch from "../components/Switch";
 import RegionDimensions from "../components/RegionDimensions";
 import Settings from "./Settings";
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 import { CameraOffBlue, MicOffBlue } from "../../images/popup/images";
 import TooltipWrap from "../components/TooltipWrap";
 
@@ -16,7 +16,8 @@ const CLOUD_FEATURES_ENABLED =
   process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
 
 const RecordingType = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [cropActive, setCropActive] = useState(false);
   const [time, setTime] = useState(0);
   const [URL, setURL] = useState(

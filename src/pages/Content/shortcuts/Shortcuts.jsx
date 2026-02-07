@@ -1,11 +1,12 @@
 import React, { useEffect, useContext, useRef } from "react";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 import { undoCanvas, redoCanvas, saveCanvas } from "../canvas/modules/History";
 
 const Shortcuts = ({ shortcuts }) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const contentStateRef = useRef(contentState);
 
   useEffect(() => {

@@ -5,12 +5,13 @@ import styles from "../../styles/player/_ShareModal.module.scss";
 import { ReactSVG } from "react-svg";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const URL = "/assets/";
 
 const ShareModal = ({ showShare, setShowShare }) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   return (
     <div className={styles.modalWrap}>

@@ -36,12 +36,12 @@ import SettingsMenu from "./layout/SettingsMenu";
 import LoggedOut from "./layout/LoggedOut";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 import { useContentStateSelector } from "../state/contentStore";
 import { useShallow } from "zustand/react/shallow";
 
 const PopupContainer = (props) => {
-  const [, setContentState] = useContext(contentStateContext);
+  const setContentState = useContentSetter();
   const contentState = useContentStateSelector(
     useShallow((state) => ({
       bigTab: state.bigTab,

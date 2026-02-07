@@ -2,10 +2,11 @@ import React, { useContext } from "react";
 
 import CameraWrap from "./layout/CameraWrap";
 
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 
 const CameraOnly = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   return (
     <div className="camera-page">

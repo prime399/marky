@@ -14,10 +14,11 @@ import {
 } from "../components/SVG";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const ShapeToolbar = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   return (
     <div

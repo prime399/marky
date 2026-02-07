@@ -10,11 +10,12 @@ import { ReactSVG } from "react-svg";
 import ShareModal from "./ShareModal";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const Title = () => {
   const [showShare, setShowShare] = useState(false);
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
   const inputRef = useRef(null);
   // Show the video title, as a heading by default (multiline), on click show a text input to edit the title
   const [showTitle, setShowTitle] = useState(true);

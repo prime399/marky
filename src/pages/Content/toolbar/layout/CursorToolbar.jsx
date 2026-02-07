@@ -3,7 +3,7 @@ import * as Toolbar from "@radix-ui/react-toolbar";
 import TooltipWrap from "../components/TooltipWrap";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 // Icons
 import {
@@ -15,7 +15,8 @@ import {
 } from "../components/SVG";
 
 const CursorToolbar = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const lastClickedEffectRef = useRef(contentState.cursorMode || "none");
 
   useEffect(() => {

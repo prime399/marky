@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const CLOUD_FEATURES_ENABLED =
   process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
 
 const ProBanner = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   const titleKey = CLOUD_FEATURES_ENABLED
     ? "proBannerTitle"

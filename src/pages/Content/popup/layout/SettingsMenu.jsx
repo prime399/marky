@@ -12,13 +12,14 @@ import { CheckWhiteIcon, DropdownGroup } from "../../images/popup/images";
 import JSZip from "jszip";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const CLOUD_FEATURES_ENABLED =
   process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
 
 const SettingsMenu = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [restore, setRestore] = useState(false);
   const [oldChrome, setOldChrome] = useState(false);
   const [openQuality, setOpenQuality] = useState(false);

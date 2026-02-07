@@ -7,11 +7,12 @@ import Switch from "../components/Switch";
 import TimeSetter from "../components/TimeSetter";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const Settings = () => {
   const [open, setOpen] = useState(false);
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [chromeVersion, setChromeVersion] = useState(null);
   // Check if Mac
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;

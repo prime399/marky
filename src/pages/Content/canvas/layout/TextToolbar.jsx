@@ -4,11 +4,12 @@ import * as Toolbar from "@radix-ui/react-toolbar";
 import * as Select from "@radix-ui/react-select";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const TextToolbar = (props) => {
   const toolbarRef = useRef(null);
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
 

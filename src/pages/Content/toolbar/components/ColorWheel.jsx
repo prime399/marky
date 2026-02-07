@@ -7,11 +7,12 @@ import { hsvaToHex } from "@uiw/color-convert";
 import TooltipWrap from "./TooltipWrap";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const ColorWheel = (props) => {
   const [hsva, setHsva] = React.useState({ h: 200, s: 50, v: 100, a: 1 });
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const wheelRef = useRef(null);
   const stateRef = useRef();
 

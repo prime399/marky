@@ -2,14 +2,15 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 import { Rnd } from "react-rnd";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 
 const ResizableBox = () => {
   const regionRef = useRef(null);
   const parentRef = useRef(null);
   const cropRef = useRef(null);
   const recordingRef = useRef(null);
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   useEffect(() => {
     recordingRef.current = contentState.recording;

@@ -21,7 +21,7 @@ import ZoomContainer from "./utils/ZoomContainer";
 import BlurTool from "./utils/BlurTool";
 import CursorModes from "./utils/CursorModes";
 
-import { contentStateContext } from "./context/ContentState";
+import { useContentState, useContentSetter } from "./context/ContentState";
 import { useContentStateSelector } from "./state/contentStore";
 import { useShallow } from "zustand/react/shallow";
 
@@ -112,7 +112,7 @@ const RecordingLoader = () => {
 };
 
 const Wrapper = () => {
-  const [, setContentState] = useContext(contentStateContext);
+  const setContentState = useContentSetter();
   const contentState = useContentStateSelector(
     useShallow((state) => ({
       permissionsChecked: state.permissionsChecked,

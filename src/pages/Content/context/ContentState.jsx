@@ -17,13 +17,18 @@ import { setupHandlers } from "./messaging/handlers";
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
 import { applyStateUpdate } from "../../../core/state/immerUpdate";
 import { useAuthStatusQuery } from "../../../core/query/useAuthStatusQuery";
-import { setContentStateSnapshot } from "../state/contentStore";
+import {
+  setContentStateSnapshot,
+  useContentStateSelector,
+} from "../state/contentStore";
 
 //create a context, with createContext api
 export const contentStateContext = createContext();
 export const contentStateRef = { current: null };
 export let setContentState = () => {};
 export let setTimer = () => {};
+export const useContentState = () => useContentStateSelector((state) => state);
+export const useContentSetter = () => setContentState;
 
 const CURSOR_EFFECTS = ["target", "highlight", "spotlight"];
 

@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from "react";
 import Plyr from "plyr-react";
 import "../../styles/plyr.css";
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 // Components
 import Title from "./Title";
 
 const VideoPlayer = (props) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   const playerRef = useRef(null);
   const [url, setUrl] = useState(null);

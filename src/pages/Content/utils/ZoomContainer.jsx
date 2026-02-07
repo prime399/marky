@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 
 const ZoomContainer = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [zoomLevel, setZoomLevel] = useState(1);
   const scaleRef = useRef(1);
   const translateXRef = useRef(0);

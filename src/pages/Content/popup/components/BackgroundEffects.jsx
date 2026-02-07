@@ -2,10 +2,11 @@ import React, { useContext } from "react";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const BackgroundEffects = () => {
-  const [contentState, setContentState] = React.useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   // Background images
   const URL =

@@ -7,10 +7,11 @@ import TooltipWrap from "./TooltipWrap";
 import { MicIcon } from "./SVG";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const MicToggle = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   return (
     <TooltipWrap

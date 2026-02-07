@@ -15,10 +15,11 @@ const RedoIcon = URL + "editor/icons/redo.svg";
 const TimeIcon = URL + "editor/icons/time.svg";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const TrimUI = (props) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
   const [undoDisabled, setUndoDisabled] = useState(true);
   const [redoDisabled, setRedoDisabled] = useState(true);
   const [startTime, setStartTime] = useState(0);

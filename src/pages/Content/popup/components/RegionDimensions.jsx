@@ -1,10 +1,11 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const RegionDimensions = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   const handleWidth = (e) => {
     let value = e.target.value;

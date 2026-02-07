@@ -6,10 +6,11 @@ import TooltipWrap from "../../toolbar/components/TooltipWrap";
 
 import { CameraCloseIcon, Pip } from "../../toolbar/components/SVG";
 
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const CameraToolbar = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   return (
     <Toolbar.Root className="camera-toolbar">

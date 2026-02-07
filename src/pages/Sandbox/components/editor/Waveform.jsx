@@ -1,10 +1,11 @@
 import React, { useContext, useRef, useEffect, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import styles from "../../styles/edit/_Waveform.module.scss";
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const WaveformGenerator = (props) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
   const wavesurferRef = useRef(null);
   const waveformContainerRef = useRef(null);
   const customCursorRef = useRef(null);

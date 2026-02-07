@@ -3,10 +3,11 @@ import styles from "../../styles/edit/_Trimmer.module.scss";
 import WaveformGenerator from "./Waveform";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const Trimmer = (props) => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   const trimmerRef = useRef(null);
   const startHandleRef = useRef(null);

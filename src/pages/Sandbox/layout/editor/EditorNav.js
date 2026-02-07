@@ -1,11 +1,12 @@
 import React, { useContext } from "react";
 import styles from "../../styles/edit/_EditorNav.module.scss";
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const URL = "/assets/";
 
 const EditorNav = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
 
   const handleCancel = () => {
     setContentState((prevContentState) => ({

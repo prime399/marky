@@ -7,10 +7,11 @@ import React, {
 } from "react";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 
 const BlurTool = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const hoveredElementRef = useRef(null);
   const blurModeRef = useRef(null);
   const [showOutline, setShowOutline] = useState(false);

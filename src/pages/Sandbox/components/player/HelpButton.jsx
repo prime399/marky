@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import styles from "../../styles/player/_HelpButton.module.scss";
 import { ReactSVG } from "react-svg";
-import { ContentStateContext } from "../../context/ContentState";
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState";
 
 const HelpButton = () => {
-  const [contentState] = useContext(ContentStateContext);
+  const contentState = useSandboxState();
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1000
   );

@@ -3,10 +3,11 @@ import { CropperRef, Cropper } from "react-advanced-cropper";
 import "react-advanced-cropper/dist/style.css";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 
 const CropperWrap = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxState();
+  const setContentState = useSandboxSetter(); // Access the ContentState context
   const [image, setImage] = useState(null);
   const cropperRef = useRef(null);
 

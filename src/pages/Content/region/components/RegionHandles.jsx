@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from "react";
 import { Rnd } from "react-rnd";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const ResizableBox = () => {
   return (

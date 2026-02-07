@@ -1,9 +1,10 @@
 import React, { useEffect, useContext, useRef, useState } from "react";
 
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const CameraWrap = (props) => {
-  const [contentState, setContentState] = React.useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   return (
     <div>

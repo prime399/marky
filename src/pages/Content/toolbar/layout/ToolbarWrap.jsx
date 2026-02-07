@@ -1,7 +1,6 @@
 import React, {
   useLayoutEffect,
   useEffect,
-  useContext,
   useState,
   useRef,
 } from "react";
@@ -21,7 +20,7 @@ import Toast from "../components/Toast";
 import { CloseIconPopup } from "../components/SVG";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 // Icons
 import {
@@ -44,8 +43,9 @@ import {
 import MicToggle from "../components/MicToggle";
 
 const ToolbarWrap = () => {
-  const [contentState, setContentState, t, setT] =
-    useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
+  const t = contentState.time;
   const [mode, setMode] = React.useState("");
   const modeRef = React.useRef(mode);
   const [hovering, setHovering] = React.useState(false);

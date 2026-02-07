@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 
 // Context
-import { contentStateContext } from "../context/ContentState";
+import { useContentState, useContentSetter } from "../context/ContentState";
 
 const COUNTDOWN_TIME = 3;
 
 const Countdown = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [count, setCount] = useState(COUNTDOWN_TIME);
   const [isTransforming, setIsTransforming] = useState(false);
   const [isRotating, setIsRotating] = useState(false);

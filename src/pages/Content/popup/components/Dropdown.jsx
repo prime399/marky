@@ -11,10 +11,11 @@ import {
 } from "../../images/popup/images";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const Dropdown = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [label, setLabel] = useState(chrome.i18n.getMessage("None"));
   const [open, setOpen] = useState(false);
 

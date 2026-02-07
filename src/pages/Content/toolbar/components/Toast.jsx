@@ -9,10 +9,11 @@ import React, {
 import * as ToastEl from "@radix-ui/react-toast";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const Toast = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [trigger, setTrigger] = useState(() => {});

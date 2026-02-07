@@ -5,10 +5,11 @@ import * as Toolbar from "@radix-ui/react-toolbar";
 import { CameraCloseIcon, CameraMoreIcon } from "../../toolbar/components/SVG";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 const CameraToolbar = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
 
   return (
     <Toolbar.Root className="camera-toolbar">

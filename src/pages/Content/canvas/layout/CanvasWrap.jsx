@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { fabric } from "fabric";
 
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 import CustomControls from "../modules/CustomControls";
 
@@ -20,7 +20,8 @@ import {
 } from "../modules/History";
 
 const CanvasWrap = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const contentStateRef = useRef(null);
   const canvasContainer = useRef();
   const canvasRef = useRef();

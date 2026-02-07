@@ -3,13 +3,14 @@ import React, { useEffect, useContext, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { useContentState, useContentSetter } from "../../context/ContentState";
 
 import CameraToolbar from "./CameraToolbar";
 import ResizeHandle from "../components/ResizeHandle";
 
 const CameraWrap = (props) => {
-  const [contentState, setContentState] = React.useContext(contentStateContext);
+  const contentState = useContentState();
+  const setContentState = useContentSetter();
   const cameraRef = React.useRef();
   const [cx, setCx] = useState(200);
   const [cy, setCy] = useState(200);

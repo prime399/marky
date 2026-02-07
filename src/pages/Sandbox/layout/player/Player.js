@@ -10,11 +10,11 @@ import Content from "./Content";
 import styles from "../../styles/player/_Player.module.scss";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
 import { useSandboxStateSelector } from "../../state/sandboxStore";
 
 const Player = () => {
-  const [contentState] = useContext(ContentStateContext);
+  const contentState = useSandboxState();
   const mode = useSandboxStateSelector((state) => state.mode) || contentState.mode;
 
   return (

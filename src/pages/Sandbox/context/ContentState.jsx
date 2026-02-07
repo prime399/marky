@@ -18,7 +18,10 @@ import {
 } from "../../utils/filenameHelpers";
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
 import { applyStateUpdate } from "../../../core/state/immerUpdate";
-import { setSandboxStateSnapshot } from "../state/sandboxStore";
+import {
+  setSandboxStateSnapshot,
+  useSandboxStateSelector,
+} from "../state/sandboxStore";
 
 localforage.config({
   driver: localforage.INDEXEDDB,
@@ -34,6 +37,8 @@ const chunksStore = localforage.createInstance({
 export const ContentStateContext = createContext();
 export const sandboxContentStateRef = { current: null };
 export let setSandboxContentState = () => {};
+export const useSandboxState = () => useSandboxStateSelector((state) => state);
+export const useSandboxSetter = () => setSandboxContentState;
 
 const ContentState = (props) => {
   const videoChunks = useRef([]);

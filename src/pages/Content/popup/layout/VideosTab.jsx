@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import VideoItem from "../components/VideoItem";
 import { PlaceholderThumb } from "../../images/popup/images";
-import { useContext } from "react";
-import { contentStateContext } from "../../context/ContentState";
+import { setContentState as setContentStateAction } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { DropdownIcon, CheckWhiteIcon } from "../../images/popup/images";
@@ -24,7 +25,13 @@ const VideosTab = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(true);
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentStateSelector(
+    useShallow((state) => ({
+      sortBy: state.sortBy,
+      isSubscribed: state.isSubscribed,
+      openToast: state.openToast,
+    })),
+  );
   const fetchedPagesRef = useRef(new Set()); // key = `${sortBy}-${page}`
   const videoCacheRef = useRef({}); // key: `${sortBy}-${page}` → video[]
   const VIDEO_CACHE_STORAGE_KEY = "cachedVideosBySort";
@@ -243,7 +250,7 @@ const VideosTab = (props) => {
     }
     chrome.storage.local.get(["sortBy"], (result) => {
       if (result.sortBy && !contentState.sortBy) {
-        setContentState((prev) => ({ ...prev, sortBy: result.sortBy }));
+        setContentStateAction((prev) => ({ ...prev, sortBy: result.sortBy }));
       }
     });
   }, []);
@@ -298,7 +305,7 @@ const VideosTab = (props) => {
                 <DropdownMenu.RadioGroup
                   value={sortBy}
                   onValueChange={(value) => {
-                    setContentState((prev) => ({ ...prev, sortBy: value }));
+                    setContentStateAction((prev) => ({ ...prev, sortBy: value }));
                     chrome.storage.local.set({ sortBy: value });
                   }}
                 >

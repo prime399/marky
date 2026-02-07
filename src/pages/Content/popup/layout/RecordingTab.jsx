@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 
 import RecordingType from "./RecordingType";
@@ -19,17 +19,31 @@ import { BaseSwitch } from "../components/Switch";
 import TooltipWrap from "../components/TooltipWrap";
 
 // Context
-import { contentStateContext } from "../../context/ContentState";
+import { setContentState as setContentStateAction } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const RecordingTab = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const contentState = useContentStateSelector(
+    useShallow((state) => ({
+      recordingType: state.recordingType,
+      recordingToScene: state.recordingToScene,
+      recordingProjectTitle: state.recordingProjectTitle,
+      multiMode: state.multiMode,
+      multiSceneCount: state.multiSceneCount,
+      openToast: state.openToast,
+      openModal: state.openModal,
+      showExtension: state.showExtension,
+      showPopup: state.showPopup,
+    })),
+  );
 
   const [tabRecordingDisabled, setTabRecordingDisabled] = useState(false);
   const [showModalSoon, setShowModalSoon] = useState(false); // 👈 NEW
 
   useEffect(() => {
     if (tabRecordingDisabled && contentState.recordingType === "region") {
-      setContentState((prev) => ({
+      setContentStateAction((prev) => ({
         ...prev,
         recordingType: "screen",
       }));
@@ -49,7 +63,7 @@ const RecordingTab = (props) => {
     setTabRecordingDisabled(isBlocked);
 
     if (isBlocked && contentState.recordingType === "region") {
-      setContentState((prev) => ({
+      setContentStateAction((prev) => ({
         ...prev,
         recordingType: "screen",
       }));
@@ -63,7 +77,7 @@ const RecordingTab = (props) => {
   }, [contentState.recordingType]);
 
   const onValueChange = (tab) => {
-    setContentState((prevContentState) => ({
+    setContentStateAction((prevContentState) => ({
       ...prevContentState,
       recordingType: tab,
     }));
@@ -105,7 +119,7 @@ const RecordingTab = (props) => {
                 <div
                   className="projectActiveBannerClose"
                   onClick={() => {
-                    setContentState((prev) => ({
+                    setContentStateAction((prev) => ({
                       ...prev,
                       projectTitle: "",
                       projectId: null,
@@ -242,7 +256,7 @@ const RecordingTab = (props) => {
                         chrome.runtime.sendMessage({
                           type: "finish-multi-recording",
                         });
-                        setContentState((prev) => ({
+                        setContentStateAction((prev) => ({
                           ...prev,
                           showExtension: false,
                           hasOpenedBefore: true,
@@ -292,7 +306,7 @@ const RecordingTab = (props) => {
                       value="multiMode"
                       checked={contentState.multiMode}
                       onChange={(checked) => {
-                        setContentState((prevContentState) => ({
+                        setContentStateAction((prevContentState) => ({
                           ...prevContentState,
                           multiMode: checked,
                         }));
@@ -331,7 +345,7 @@ const RecordingTab = (props) => {
                               }
                             });
                           chrome.storage.local.set({ instantMode: false });
-                          setContentState((prevContentState) => ({
+                          setContentStateAction((prevContentState) => ({
                             ...prevContentState,
                             instantMode: false,
                           }));

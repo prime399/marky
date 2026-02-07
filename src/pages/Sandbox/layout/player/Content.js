@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import styles from "../../styles/player/_Content.module.scss";
 
 // Components
@@ -8,19 +8,20 @@ import HelpButton from "../../components/player/HelpButton";
 import ProBanner from "../../components/global/ProBanner";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxStateSelector } from "../../state/sandboxStore";
 
 const Content = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const mode = useSandboxStateSelector((state) => state.mode);
+  const bannerSupport = useSandboxStateSelector((state) => state.bannerSupport);
   return (
     <div className={styles.content}>
       <div className={styles.wrap}>
-        {contentState.mode === "audio" && <VideoPlayer />}
-        {contentState.mode === "player" && <VideoPlayer />}
-        {contentState.mode === "crop" && <CropperWrap />}
+        {mode === "audio" && <VideoPlayer />}
+        {mode === "player" && <VideoPlayer />}
+        {mode === "crop" && <CropperWrap />}
       </div>
       <HelpButton />
-      {contentState.bannerSupport && <ProBanner />}
+      {bannerSupport && <ProBanner />}
     </div>
   );
 };

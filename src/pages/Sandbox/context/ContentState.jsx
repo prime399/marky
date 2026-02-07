@@ -32,6 +32,8 @@ const chunksStore = localforage.createInstance({
 });
 
 export const ContentStateContext = createContext();
+export const sandboxContentStateRef = { current: null };
+export let setSandboxContentState = () => {};
 
 const ContentState = (props) => {
   const videoChunks = useRef([]);
@@ -113,9 +115,11 @@ const ContentState = (props) => {
       return next;
     });
   }, []);
+  setSandboxContentState = setContentState;
 
   useEffect(() => {
     setSandboxStateSnapshot(contentState);
+    sandboxContentStateRef.current = contentState;
   }, [contentState]);
 
   const buildBlobFromChunks = async () => {

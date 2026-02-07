@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "../../styles/player/_RightPanel.module.scss";
 
 import JSZip from "jszip";
@@ -13,10 +13,11 @@ import CropUI from "../editor/CropUI";
 import AudioUI from "../editor/AudioUI";
 
 // Context
-import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { setSandboxContentState } from "../../context/ContentState";
+import { useSandboxStateSelector } from "../../state/sandboxStore";
 
 const RightPanel = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const contentState = useSandboxStateSelector((state) => state);
   const contentStateRef = useRef(contentState);
   const consoleErrorRef = useRef([]);
 
@@ -32,7 +33,7 @@ const RightPanel = () => {
 
   const saveToDrive = () => {
     //if (contentState.noffmpeg) return;
-    setContentState((prevContentState) => ({
+    setSandboxContentState((prevContentState) => ({
       ...prevContentState,
       saveDrive: true,
     }));
@@ -46,7 +47,7 @@ const RightPanel = () => {
         .then((response) => {
           if (response.status === "ew") {
             // Cancel saving to drive
-            setContentState((prevContentState) => ({
+            setSandboxContentState((prevContentState) => ({
               ...prevContentState,
               saveDrive: false,
             }));
@@ -68,7 +69,7 @@ const RightPanel = () => {
           .then((response) => {
             if (response.status === "ew") {
               // Cancel saving to drive
-              setContentState((prevContentState) => ({
+              setSandboxContentState((prevContentState) => ({
                 ...prevContentState,
                 saveDrive: false,
               }));
@@ -89,7 +90,7 @@ const RightPanel = () => {
 
   const signOutDrive = () => {
     chrome.runtime.sendMessage({ type: "sign-out-drive" });
-    setContentState((prevContentState) => ({
+    setSandboxContentState((prevContentState) => ({
       ...prevContentState,
       driveEnabled: false,
     }));
@@ -105,14 +106,14 @@ const RightPanel = () => {
 
     contentState.createBackup();
 
-    setContentState((prevContentState) => ({
+    setSandboxContentState((prevContentState) => ({
       ...prevContentState,
       mode: "edit",
       dragInteracted: false,
     }));
 
     if (!contentState.hasBeenEdited) {
-      setContentState((prevContentState) => ({
+      setSandboxContentState((prevContentState) => ({
         ...prevContentState,
         hasBeenEdited: true,
       }));
@@ -134,13 +135,13 @@ const RightPanel = () => {
       contentState.getFrame();
     }
 
-    setContentState((prevContentState) => ({
+    setSandboxContentState((prevContentState) => ({
       ...prevContentState,
       mode: "crop",
     }));
 
     if (!contentState.hasBeenEdited) {
-      setContentState((prevContentState) => ({
+      setSandboxContentState((prevContentState) => ({
         ...prevContentState,
         hasBeenEdited: true,
       }));
@@ -157,13 +158,13 @@ const RightPanel = () => {
 
     contentState.createBackup();
 
-    setContentState((prevContentState) => ({
+    setSandboxContentState((prevContentState) => ({
       ...prevContentState,
       mode: "audio",
     }));
 
     if (!contentState.hasBeenEdited) {
-      setContentState((prevContentState) => ({
+      setSandboxContentState((prevContentState) => ({
         ...prevContentState,
         hasBeenEdited: true,
       }));
@@ -337,7 +338,7 @@ const RightPanel = () => {
                         chrome.i18n.getMessage("overLimitModalButton"),
                         chrome.i18n.getMessage("sandboxEditorCancelButton"),
                         () => {
-                          setContentState((prevContentState) => ({
+                          setSandboxContentState((prevContentState) => ({
                             ...prevContentState,
                             saved: true,
                           }));

@@ -14,8 +14,9 @@ import Shortcuts from "../shortcuts/Shortcuts";
 // import { initializeContentMessageListener } from "./messaging/messageListener";
 import { setupHandlers } from "./messaging/handlers";
 
-import { checkAuthStatus } from "./utils/checkAuthStatus";
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
+import { applyStateUpdate } from "../../../core/state/immerUpdate";
+import { useAuthStatusQuery } from "../../../core/query/useAuthStatusQuery";
 
 //create a context, with createContext api
 export const contentStateContext = createContext();
@@ -72,37 +73,33 @@ const ContentState = (props) => {
     return true;
   }, []);
 
-  // Check if the user is logged in
-  const verifyUser = async () => {
-    if (!CLOUD_FEATURES_ENABLED) return;
-    const result = await checkAuthStatus();
+  const { data: authStatus } = useAuthStatusQuery({
+    enabled: CLOUD_FEATURES_ENABLED,
+  });
 
+  useEffect(() => {
+    if (!authStatus) return;
     setContentState((prev) => ({
       ...prev,
-      isLoggedIn: result.authenticated,
-      screenityUser: result.user,
-      isSubscribed: result.subscribed,
-      hasSubscribedBefore: result.hasSubscribedBefore,
-      proSubscription: result.proSubscription,
+      isLoggedIn: authStatus.authenticated,
+      screenityUser: authStatus.user,
+      isSubscribed: authStatus.subscribed,
+      hasSubscribedBefore: authStatus.hasSubscribedBefore,
+      proSubscription: authStatus.proSubscription,
     }));
 
-    if (result.authenticated) {
-      // Offscreen recording and client-side zoom are not available
+    if (authStatus.authenticated) {
       setContentState((prev) => ({
         ...prev,
         offscreenRecording: false,
         zoomEnabled: false,
       }));
-
       chrome.storage.local.set({
         offscreenRecording: false,
         zoomEnabled: false,
       });
     }
-  };
-  useEffect(() => {
-    verifyUser();
-  }, []);
+  }, [authStatus]);
 
   useEffect(() => {
     chrome.runtime.sendMessage({ type: "get-tab-id" }, (response) => {
@@ -968,16 +965,11 @@ const ContentState = (props) => {
   contentStateRef.current = contentState;
 
   setContentState = (updater) => {
-    if (typeof updater === "function") {
-      setContentStateInternal((prevState) => {
-        const newState = updater(prevState);
-        contentStateRef.current = newState;
-        return newState;
-      });
-    } else {
-      setContentStateInternal(updater);
-      contentStateRef.current = updater;
-    }
+    setContentStateInternal((prevState) => {
+      const nextState = applyStateUpdate(prevState, updater);
+      contentStateRef.current = nextState;
+      return nextState;
+    });
   };
 
   const playBeep = (ref, filename) => {

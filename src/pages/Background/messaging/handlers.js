@@ -54,6 +54,8 @@ import { handleSignOutDrive } from "../drive/handleSignOutDrive";
 import { loginWithWebsite } from "../auth/loginWithWebsite";
 import { createLocalServices } from "../../../core/services/localServices";
 import { createDefaultProject, SYNC_STATUS } from "../../../core/project/projectSchema";
+import { initializeBridgeBackgroundHandlers } from "../../../core/messaging/bridgeBackground";
+import { MESSAGE_TYPES } from "../../../core/messaging/messageTypes";
 
 const API_BASE = process.env.SCREENITY_API_BASE_URL;
 const CLOUD_FEATURES_ENABLED =
@@ -132,6 +134,7 @@ export const copyToClipboard = (text) => {
 
 // Initialize message router and register all handlers
 export const setupHandlers = () => {
+  initializeBridgeBackgroundHandlers();
   registerMessage("desktop-capture", (message) => desktopCapture(message));
   registerMessage("backup-created", (message) =>
     offscreenDocument(message.request, message.tabId)
@@ -352,7 +355,7 @@ export const setupHandlers = () => {
   );
   registerMessage("add-alarm-listener", (payload) => addAlarmListener(payload));
   registerMessage(
-    "check-auth-status",
+    MESSAGE_TYPES.CHECK_AUTH_STATUS,
     async (message, sender, sendResponse) => {
       if (!CLOUD_FEATURES_ENABLED) {
         sendResponse({
@@ -367,7 +370,7 @@ export const setupHandlers = () => {
     }
   );
   registerMessage(
-    "create-video-project",
+    MESSAGE_TYPES.CREATE_VIDEO_PROJECT,
     async (message, sender, sendResponse) => {
       const localProjectPayload = message?.project
         ? {
@@ -458,7 +461,7 @@ export const setupHandlers = () => {
       return true;
     }
   );
-  registerMessage("project-load", async (message, sender, sendResponse) => {
+  registerMessage(MESSAGE_TYPES.PROJECT_LOAD, async (message, sender, sendResponse) => {
     try {
       const project = await localServices.projectRepository.loadProject(
         message?.projectId,
@@ -469,7 +472,7 @@ export const setupHandlers = () => {
     }
     return true;
   });
-  registerMessage("project-save", async (message, sender, sendResponse) => {
+  registerMessage(MESSAGE_TYPES.PROJECT_SAVE, async (message, sender, sendResponse) => {
     try {
       const project = await localServices.projectRepository.saveProject(
         message?.project,
@@ -480,7 +483,7 @@ export const setupHandlers = () => {
     }
     return true;
   });
-  registerMessage("project-list", async (message, sender, sendResponse) => {
+  registerMessage(MESSAGE_TYPES.PROJECT_LIST, async (message, sender, sendResponse) => {
     try {
       const projects = await localServices.projectRepository.listProjects();
       sendResponse({ success: true, projects });

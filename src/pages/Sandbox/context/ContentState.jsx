@@ -17,6 +17,7 @@ import {
   sanitizeFilenameBase,
 } from "../../utils/filenameHelpers";
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
+import { applyStateUpdate } from "../../../core/state/immerUpdate";
 
 localforage.config({
   driver: localforage.INDEXEDDB,
@@ -106,7 +107,7 @@ const ContentState = (props) => {
 
   const setContentState = useCallback((updater) => {
     _setContentState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
+      const next = applyStateUpdate(prev, updater);
       contentStateRef.current = next;
       return next;
     });

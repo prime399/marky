@@ -1,4 +1,5 @@
 import { createDefaultProject } from "../../core/project/projectSchema";
+import { MESSAGE_TYPES } from "../../core/messaging/messageTypes";
 
 export const createVideoProject = async ({
   title = "Untitled Recording",
@@ -16,7 +17,7 @@ export const createVideoProject = async ({
 
     chrome.runtime.sendMessage(
       {
-        type: "create-video-project",
+        type: MESSAGE_TYPES.CREATE_VIDEO_PROJECT,
         title,
         data: project.data,
         project,

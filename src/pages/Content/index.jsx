@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import Content from "./Content";
+import AppProviders from "../../core/providers/AppProviders";
 
 // Check if screenity-ui already exists, if so, remove it
 const existingRoot = document.getElementById("screenity-ui");
@@ -13,4 +14,8 @@ root.id = "screenity-ui";
 document.body.appendChild(root);
 
 const appRoot = createRoot(root);
-appRoot.render(<Content />);
+appRoot.render(
+  <AppProviders>
+    <Content />
+  </AppProviders>,
+);

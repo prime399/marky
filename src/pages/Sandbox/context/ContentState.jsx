@@ -16,6 +16,7 @@ import {
   getHostnameFromUrl,
   sanitizeFilenameBase,
 } from "../../utils/filenameHelpers";
+import { SYNC_STATUS } from "../../../core/project/projectSchema";
 
 localforage.config({
   driver: localforage.INDEXEDDB,
@@ -94,6 +95,10 @@ const ContentState = (props) => {
     bannerSupport: false,
     backupBlob: null,
     recordingMeta: null,
+    syncStatus: SYNC_STATUS.LOCAL_ONLY,
+    syncError: null,
+    lastSyncedAt: null,
+    schemaVersion: 1,
   };
 
   const [contentState, _setContentState] = useState(defaultState);

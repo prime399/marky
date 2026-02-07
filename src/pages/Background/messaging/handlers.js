@@ -52,6 +52,8 @@ import { newChunk, clearAllRecordings } from "../recording/chunkHandler";
 import { setMicActiveTab } from "../tabManagement/tabHelpers";
 import { handleSignOutDrive } from "../drive/handleSignOutDrive";
 import { loginWithWebsite } from "../auth/loginWithWebsite";
+import { createLocalServices } from "../../../core/services/localServices";
+import { createDefaultProject, SYNC_STATUS } from "../../../core/project/projectSchema";
 
 const API_BASE = process.env.SCREENITY_API_BASE_URL;
 const CLOUD_FEATURES_ENABLED =
@@ -83,6 +85,7 @@ const ensureAudioOffscreen = async () => {
 
 let activeRecordingSession = null;
 let recordingTabListener = null;
+const localServices = createLocalServices();
 
 const clearRecordingSession = () => {
   activeRecordingSession = null;
@@ -366,11 +369,35 @@ export const setupHandlers = () => {
   registerMessage(
     "create-video-project",
     async (message, sender, sendResponse) => {
+      const localProjectPayload = message?.project
+        ? {
+            ...message.project,
+            title: message.title || message.project.title,
+            data: message.data || message.project.data || {},
+            syncStatus: SYNC_STATUS.LOCAL_ONLY,
+          }
+        : createDefaultProject({
+            title: message?.title || "Untitled Recording",
+            instantMode: message?.instantMode || false,
+          });
+
       if (!CLOUD_FEATURES_ENABLED) {
-        sendResponse({ success: false, message: "Cloud features disabled" });
+        try {
+          const localProject = await localServices.projectRepository.saveProject(
+            localProjectPayload,
+          );
+          sendResponse({
+            success: true,
+            videoId: localProject.id,
+            localOnly: true,
+            schemaVersion: localProject.schemaVersion,
+          });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
         return true;
       }
-      const { authenticated, subscribed, user } = await loginWithWebsite();
+      const { authenticated, subscribed } = await loginWithWebsite();
 
       if (!authenticated) {
         sendResponse({ success: false, message: "User not authenticated" });
@@ -378,7 +405,20 @@ export const setupHandlers = () => {
       }
 
       if (!subscribed) {
-        sendResponse({ success: false, message: "Subscription inactive" });
+        try {
+          const localProject = await localServices.projectRepository.saveProject(
+            localProjectPayload,
+          );
+          sendResponse({
+            success: true,
+            videoId: localProject.id,
+            localOnly: true,
+            message: "Subscription inactive - using local project",
+            schemaVersion: localProject.schemaVersion,
+          });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
         return true;
       }
 
@@ -418,6 +458,37 @@ export const setupHandlers = () => {
       return true;
     }
   );
+  registerMessage("project-load", async (message, sender, sendResponse) => {
+    try {
+      const project = await localServices.projectRepository.loadProject(
+        message?.projectId,
+      );
+      sendResponse({ success: true, project });
+    } catch (error) {
+      sendResponse({ success: false, error: error.message });
+    }
+    return true;
+  });
+  registerMessage("project-save", async (message, sender, sendResponse) => {
+    try {
+      const project = await localServices.projectRepository.saveProject(
+        message?.project,
+      );
+      sendResponse({ success: true, project });
+    } catch (error) {
+      sendResponse({ success: false, error: error.message });
+    }
+    return true;
+  });
+  registerMessage("project-list", async (message, sender, sendResponse) => {
+    try {
+      const projects = await localServices.projectRepository.listProjects();
+      sendResponse({ success: true, projects });
+    } catch (error) {
+      sendResponse({ success: false, error: error.message });
+    }
+    return true;
+  });
   registerMessage("handle-login", async () => {
     if (!CLOUD_FEATURES_ENABLED) {
       console.warn("Cloud features disabled, cannot handle login");

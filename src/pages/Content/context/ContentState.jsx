@@ -15,6 +15,7 @@ import Shortcuts from "../shortcuts/Shortcuts";
 import { setupHandlers } from "./messaging/handlers";
 
 import { checkAuthStatus } from "./utils/checkAuthStatus";
+import { SYNC_STATUS } from "../../../core/project/projectSchema";
 
 //create a context, with createContext api
 export const contentStateContext = createContext();
@@ -929,6 +930,10 @@ const ContentState = (props) => {
     onboarding: false,
     showProSplash: false,
     hasSubscribedBefore: false,
+    syncStatus: SYNC_STATUS.LOCAL_ONLY,
+    syncError: null,
+    lastSyncedAt: null,
+    schemaVersion: 1,
     startRecordingAfterCountdown: () => {
       if (!contentStateRef.current.countdownCancelled) {
         contentStateRef.current.startRecording();

@@ -12,7 +12,10 @@
     "postinstall": "patch-package",
     "package": "npm run build && cd build && zip -r ../extension.zip . && cd ..",
     "clean": "rm -rf build && mkdir build",
-    "lint": "eslint src/**/*.js --fix"
+    "lint": "eslint src/**/*.js --fix",
+    "test:unit": "node --test tests/phase0/projectSchema.test.js",
+    "test:integration": "node --test tests/phase0/localProjectRepository.integration.test.js",
+    "test:phase0": "npm run test:unit && npm run test:integration"
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.27.1",

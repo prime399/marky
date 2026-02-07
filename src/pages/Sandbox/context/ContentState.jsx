@@ -18,6 +18,7 @@ import {
 } from "../../utils/filenameHelpers";
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
 import { applyStateUpdate } from "../../../core/state/immerUpdate";
+import { setSandboxStateSnapshot } from "../state/sandboxStore";
 
 localforage.config({
   driver: localforage.INDEXEDDB,
@@ -109,9 +110,14 @@ const ContentState = (props) => {
     _setContentState((prev) => {
       const next = applyStateUpdate(prev, updater);
       contentStateRef.current = next;
+      setSandboxStateSnapshot(next);
       return next;
     });
   }, []);
+
+  useEffect(() => {
+    setSandboxStateSnapshot(contentState);
+  }, [contentState]);
 
   const buildBlobFromChunks = async () => {
     const items = [];

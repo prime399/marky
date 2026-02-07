@@ -22,6 +22,8 @@ import BlurTool from "./utils/BlurTool";
 import CursorModes from "./utils/CursorModes";
 
 import { contentStateContext } from "./context/ContentState";
+import { useContentStateSelector } from "./state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 import { startClickTracking } from "./cursor/trackClicks";
 
@@ -110,7 +112,34 @@ const RecordingLoader = () => {
 };
 
 const Wrapper = () => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const [, setContentState] = useContext(contentStateContext);
+  const contentState = useContentStateSelector(
+    useShallow((state) => ({
+      permissionsChecked: state.permissionsChecked,
+      permissionsLoaded: state.permissionsLoaded,
+      showExtension: state.showExtension,
+      recording: state.recording,
+      customRegion: state.customRegion,
+      regionWidth: state.regionWidth,
+      regionHeight: state.regionHeight,
+      regionX: state.regionX,
+      regionY: state.regionY,
+      hasOpenedBefore: state.hasOpenedBefore,
+      isSubscribed: state.isSubscribed,
+      zoomEnabled: state.zoomEnabled,
+      drawingMode: state.drawingMode,
+      blurMode: state.blurMode,
+      pendingRecording: state.pendingRecording,
+      onboarding: state.onboarding,
+      recordingType: state.recordingType,
+      preparingRecording: state.preparingRecording,
+      isLoggedIn: state.isLoggedIn,
+      wasLoggedIn: state.wasLoggedIn,
+      hideToolbar: state.hideToolbar,
+      hideUI: state.hideUI,
+      showPopup: state.showPopup,
+    })),
+  );
   const shadowRef = useRef(null);
   const parentRef = useRef(null);
   const permissionsRef = useRef(null);

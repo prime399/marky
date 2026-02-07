@@ -26,6 +26,10 @@ export const waitForContentScript = async (
 
       // Ping the content script
       chrome.tabs.sendMessage(tabId, { type: "ping" }, (response) => {
+        if (chrome.runtime.lastError) {
+          // Expected while content script is still loading or tab is gone.
+          return;
+        }
         if (response?.status === "ready") {
           clearInterval(intervalId);
           resolve();

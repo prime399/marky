@@ -17,6 +17,7 @@ import { setupHandlers } from "./messaging/handlers";
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
 import { applyStateUpdate } from "../../../core/state/immerUpdate";
 import { useAuthStatusQuery } from "../../../core/query/useAuthStatusQuery";
+import { setContentStateSnapshot } from "../state/contentStore";
 
 //create a context, with createContext api
 export const contentStateContext = createContext();
@@ -968,9 +969,14 @@ const ContentState = (props) => {
     setContentStateInternal((prevState) => {
       const nextState = applyStateUpdate(prevState, updater);
       contentStateRef.current = nextState;
+      setContentStateSnapshot(nextState);
       return nextState;
     });
   };
+
+  useEffect(() => {
+    setContentStateSnapshot(contentState);
+  }, [contentState]);
 
   const playBeep = (ref, filename) => {
     if (!ref.current) {

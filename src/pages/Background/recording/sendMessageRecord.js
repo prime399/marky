@@ -1,6 +1,17 @@
 import { sendMessageTab } from "../tabManagement";
 
 export const sendMessageRecord = (message, responseCallback = null) => {
+  const isBenignMessagingError = (error) => {
+    const text = String(error || "");
+    return (
+      text.includes("Could not establish connection") ||
+      text.includes("The message port closed before a response was received") ||
+      text.includes("No recording tab available") ||
+      text.includes("No tab with id") ||
+      text.includes("Invalid tab URL")
+    );
+  };
+
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(["recordingTab", "offscreen"], (result) => {
       if (chrome.runtime.lastError) {
@@ -14,7 +25,12 @@ export const sendMessageRecord = (message, responseCallback = null) => {
       if (result.offscreen) {
         chrome.runtime.sendMessage(message, (response) => {
           if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError.message);
+            const error = chrome.runtime.lastError.message;
+            if (isBenignMessagingError(error)) {
+              resolve(null);
+              return;
+            }
+            reject(error);
           } else {
             responseCallback ? responseCallback(response) : resolve(response);
           }
@@ -23,12 +39,16 @@ export const sendMessageRecord = (message, responseCallback = null) => {
         sendMessageTab(result.recordingTab, message, responseCallback)
           .then(resolve)
           .catch((err) => {
-            console.warn(
-              "sendMessageRecord: failed to message recordingTab",
-              result.recordingTab,
-              err
-            );
-            reject(err);
+            if (!isBenignMessagingError(err)) {
+              console.warn(
+                "sendMessageRecord: failed to message recordingTab",
+                result.recordingTab,
+                err
+              );
+              reject(err);
+              return;
+            }
+            resolve(null);
           });
       } else {
         // No recordingTab set - check if there's an active recorderSession
@@ -45,12 +65,18 @@ export const sendMessageRecord = (message, responseCallback = null) => {
               responseCallback
             )
               .then(resolve)
-              .catch(reject);
+              .catch((err) => {
+                if (isBenignMessagingError(err)) {
+                  resolve(null);
+                  return;
+                }
+                reject(err);
+              });
           } else {
             console.warn(
               "sendMessageRecord: no recordingTab or recorderSession available"
             );
-            reject(new Error("No recording tab available"));
+            resolve(null);
           }
         });
       }

@@ -1,7 +1,7 @@
 import "./styles/edit/_VideoPlayer.scss";
 import "./styles/global/_app.scss";
 
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 // Layout
 import Editor from "./layout/editor/Editor";
 import Player from "./layout/player/Player";
@@ -11,9 +11,26 @@ import HelpButton from "./components/player/HelpButton";
 
 // Context
 import { ContentStateContext } from "./context/ContentState"; // Import the ContentState context
+import { useSandboxStateSelector } from "./state/sandboxStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Sandbox = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const [, setContentState] = useContext(ContentStateContext);
+  const contentState = useSandboxStateSelector(
+    useShallow((state) => ({
+      loadFFmpeg: state.loadFFmpeg,
+      blob: state.blob,
+      ffmpeg: state.ffmpeg,
+      frame: state.frame,
+      getFrame: state.getFrame,
+      chunkCount: state.chunkCount,
+      chunkIndex: state.chunkIndex,
+      mode: state.mode,
+      ready: state.ready,
+      openModal: state.openModal,
+      bannerSupport: state.bannerSupport,
+    })),
+  );
   const parentRef = useRef(null);
   const progress = useRef("");
 

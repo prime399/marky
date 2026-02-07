@@ -1,5 +1,3 @@
-import { sendMessage as bridgeSendMessage } from "webext-bridge/content-script";
-
 const sendRuntimeMessage = (type, payload = {}) =>
   new Promise((resolve, reject) => {
     if (!chrome?.runtime?.sendMessage) {
@@ -15,10 +13,21 @@ const sendRuntimeMessage = (type, payload = {}) =>
     });
   });
 
+const isContentScriptPage = () => {
+  if (typeof window === "undefined") return false;
+  const protocol = window.location?.protocol || "";
+  return protocol === "http:" || protocol === "https:";
+};
+
 export const sendExtensionMessage = async (type, payload = {}) => {
+  if (!isContentScriptPage()) {
+    return sendRuntimeMessage(type, payload);
+  }
+
   try {
-    return await bridgeSendMessage(type, payload, "background");
-  } catch (error) {
+    const bridge = await import("webext-bridge/content-script");
+    return await bridge.sendMessage(type, payload, "background");
+  } catch (_error) {
     return sendRuntimeMessage(type, payload);
   }
 };

@@ -7,7 +7,15 @@ const proxyToRuntimeHandler = async (type, data = {}) =>
   new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({ type, ...data }, (response) => {
       if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
+        const message = chrome.runtime.lastError.message || "";
+        if (
+          message.includes("Could not establish connection") ||
+          message.includes("The message port closed before a response was received")
+        ) {
+          resolve({ success: false, message });
+          return;
+        }
+        reject(new Error(message));
         return;
       }
       resolve(response);

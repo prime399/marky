@@ -4,6 +4,8 @@ import * as AlertDialog from "@radix-ui/react-alert-dialog";
 // Context
 import { useContentState, useContentSetter } from "../context/ContentState";
 
+const noop = () => {};
+
 const Modal = (props) => {
   const contentState = useContentState();
   const setContentState = useContentSetter();
@@ -11,15 +13,15 @@ const Modal = (props) => {
   const [description, setDescription] = useState("Description here");
   const [button1, setButton1] = useState("Submit");
   const [button2, setButton2] = useState("Cancel");
-  const [trigger, setTrigger] = useState(() => {});
-  const [trigger2, setTrigger2] = useState(() => {});
+  const [trigger, setTrigger] = useState(() => noop);
+  const [trigger2, setTrigger2] = useState(() => noop);
   const [showModal, setShowModal] = useState(false);
   const [image, setImage] = useState(null);
   const [learnmore, setLearnMore] = useState(null);
-  const [learnMoreLink, setLearnMoreLink] = useState(() => {});
+  const [learnMoreLink, setLearnMoreLink] = useState(() => noop);
   const [colorSafe, setColorSafe] = useState(false);
   const [sideButton, setSideButton] = useState(false);
-  const [sideButtonAction, setSideButtonAction] = useState(() => {});
+  const [sideButtonAction, setSideButtonAction] = useState(() => noop);
 
   const openModal = useCallback(
     (
@@ -41,14 +43,18 @@ const Modal = (props) => {
       setButton1(button1);
       setButton2(button2);
       setShowModal(true);
-      setTrigger(() => action);
-      setTrigger2(() => action2);
+      setTrigger(() => (typeof action === "function" ? action : noop));
+      setTrigger2(() => (typeof action2 === "function" ? action2 : noop));
       setImage(image);
       setLearnMore(learnMore);
-      setLearnMoreLink(() => learnMoreLink);
+      setLearnMoreLink(() =>
+        typeof learnMoreLink === "function" ? learnMoreLink : noop,
+      );
       setColorSafe(colorSafe);
       setSideButton(sideButton);
-      setSideButtonAction(() => sideButtonAction);
+      setSideButtonAction(() =>
+        typeof sideButtonAction === "function" ? sideButtonAction : noop,
+      );
     }
   );
 
@@ -86,7 +92,7 @@ const Modal = (props) => {
             {title}
           </AlertDialog.Title>
           <AlertDialog.Description className="AlertDialogDescription">
-            {description.split("\n").map((line, idx) => (
+            {(description || "").split("\n").map((line, idx) => (
               <React.Fragment key={idx}>
                 {line}
                 <br />
@@ -126,7 +132,14 @@ const Modal = (props) => {
             )}
             {button2 && (
               <AlertDialog.Cancel asChild>
-                <button className="Button grey" onClick={() => trigger2()}>
+                <button
+                  className="Button grey"
+                  onClick={() => {
+                    if (typeof trigger2 === "function") {
+                      trigger2();
+                    }
+                  }}
+                >
                   {button2}
                 </button>
               </AlertDialog.Cancel>
@@ -135,7 +148,11 @@ const Modal = (props) => {
               <AlertDialog.Action asChild>
                 <button
                   className={!colorSafe ? "Button red" : "Button blue"}
-                  onClick={() => trigger()}
+                  onClick={() => {
+                    if (typeof trigger === "function") {
+                      trigger();
+                    }
+                  }}
                 >
                   {button1}
                 </button>

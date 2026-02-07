@@ -11,12 +11,14 @@ import * as ToastEl from "@radix-ui/react-toast";
 // Context
 import { useContentState, useContentSetter } from "../../context/ContentState";
 
+const noop = () => {};
+
 const Toast = () => {
   const contentState = useContentState();
   const setContentState = useContentSetter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [trigger, setTrigger] = useState(() => {});
+  const [trigger, setTrigger] = useState(() => noop);
   const triggerRef = useRef(trigger);
   const openRef = useRef(open);
   const contentStateRef = useRef(contentState);
@@ -30,7 +32,7 @@ const Toast = () => {
     if (contentStateRef.current.hideUI) return;
     setTitle(title);
     setOpen(true);
-    setTrigger(() => action);
+    setTrigger(() => (typeof action === "function" ? action : noop));
     setToastDuration(durationMs);
   });
 
@@ -56,7 +58,7 @@ const Toast = () => {
     triggerRef.current = trigger;
 
     return () => {
-      triggerRef.current = () => {};
+      triggerRef.current = noop;
     };
   }, [trigger]);
 
@@ -69,7 +71,9 @@ const Toast = () => {
         onEscapeKeyDown={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          triggerRef.current();
+          if (typeof triggerRef.current === "function") {
+            triggerRef.current();
+          }
           setOpen(false);
         }}
       >
@@ -79,14 +83,18 @@ const Toast = () => {
           asChild
           altText="Escape"
           onClick={() => {
-            trigger();
+            if (typeof trigger === "function") {
+              trigger();
+            }
           }}
         >
           <button
             className="Button"
             onClick={(e) => {
               e.stopPropagation();
-              trigger();
+              if (typeof trigger === "function") {
+                trigger();
+              }
             }}
           >
             Esc

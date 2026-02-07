@@ -136,12 +136,14 @@ const ToolbarWrap = () => {
               .padStart(2, "0")}`;
 
       // Adjust the width of the time display based on the duration
-      if (hours > 0) {
-        // Adjust for HH:MM:SS format when hours are present
-        timeRef.current.style.width = "58px"; // You might need to adjust this value based on your actual UI
-      } else {
-        // Adjust for MM:SS format when there are no hours
-        timeRef.current.style.width = "42px"; // Adjust this value as needed
+      if (timeRef.current) {
+        if (hours > 0) {
+          // Adjust for HH:MM:SS format when hours are present
+          timeRef.current.style.width = "58px";
+        } else {
+          // Adjust for MM:SS format when there are no hours
+          timeRef.current.style.width = "42px";
+        }
       }
 
       setTimestamp(newTimestamp);

@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import styles from "../../styles/edit/_Waveform.module.scss";
 import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
@@ -30,6 +30,7 @@ const WaveformGenerator = (props) => {
 
   const loadWaveform = async (blob) => {
     try {
+      if (!waveformContainerRef.current) return;
       wavesurferRef.current = WaveSurfer.create({
         container: waveformContainerRef.current,
         waveColor: "#C4C5CE",
@@ -45,6 +46,7 @@ const WaveformGenerator = (props) => {
       );
 
       wavesurferRef.current.on("seeking", (currentTime) => {
+        if (!waveformContainerRef.current || !customCursorRef.current) return;
         const containerRect =
           waveformContainerRef.current.getBoundingClientRect();
         const cursorX =
@@ -68,10 +70,9 @@ const WaveformGenerator = (props) => {
   };
 
   const handleMouseMove = (e) => {
+    if (!waveformContainerRef.current || !ghostCursorRef.current) return;
     const containerRect = waveformContainerRef.current.getBoundingClientRect();
     const cursorX = e.clientX - containerRect.left;
-    const minX = 0;
-    const maxX = containerRect.width;
     const cursorStyle = ghostCursorRef.current.style;
     cursorStyle.left = `${cursorX}px`;
   };
@@ -94,6 +95,7 @@ const WaveformGenerator = (props) => {
     if (!contentState.blob) return;
     loadWaveform(contentState.blob);
     const container = waveformContainerRef.current;
+    if (!container) return;
     container.addEventListener("mouseover", handleMouseEnter);
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("mouseleave", handleMouseLeave);
@@ -102,6 +104,7 @@ const WaveformGenerator = (props) => {
 
     if (wavesurferRef.current) {
       wavesurferRef.current.on("seek", (position) => {
+        if (!waveformContainerRef.current || !customCursorRef.current) return;
         const containerRect =
           waveformContainerRef.current.getBoundingClientRect();
         const cursorX = containerRect.width * position;
@@ -115,7 +118,7 @@ const WaveformGenerator = (props) => {
       if (wavesurferRef.current) {
         wavesurferRef.current.destroy();
       }
-      container.removeEventListener("mouseenter", handleMouseEnter);
+      container.removeEventListener("mouseover", handleMouseEnter);
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mousedown", handleMouseDown);
@@ -131,6 +134,7 @@ const WaveformGenerator = (props) => {
     const video = document.createElement("video");
     video.preload = "metadata";
     video.onloadedmetadata = async () => {
+      if (!waveformContainerRef.current || !customCursorRef.current) return;
       const containerRect =
         waveformContainerRef.current.getBoundingClientRect();
       const cursorX =
@@ -141,7 +145,7 @@ const WaveformGenerator = (props) => {
       video.remove();
     };
     video.src = URL.createObjectURL(contentState.blob);
-  }, [contentState.time, contentState.blob, waveformContainerRef.current]);
+  }, [contentState.time, contentState.blob, contentState.updatePlayerTime]);
 
   return (
     <div style={{ height: "100%" }}>

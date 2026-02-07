@@ -14,8 +14,18 @@ const useEditorStore = create((set) => ({
   activeTab: EDIT_TAB,
   playhead: 0,
   ...INITIAL_SELECTION,
-  setActiveTab: (tab) => set({ activeTab: getValidTab(tab) }),
-  setPlayhead: (seconds) => set({ playhead: clampPlayhead(seconds) }),
+  setActiveTab: (tab) =>
+    set((state) => {
+      const nextTab = getValidTab(tab);
+      if (state.activeTab === nextTab) return state;
+      return { activeTab: nextTab };
+    }),
+  setPlayhead: (seconds) =>
+    set((state) => {
+      const nextPlayhead = clampPlayhead(seconds);
+      if (state.playhead === nextPlayhead) return state;
+      return { playhead: nextPlayhead };
+    }),
   setSelection: (selection) =>
     set((state) => resolveSelection(state, selection)),
   setSelectedSceneId: (selectedSceneId) =>

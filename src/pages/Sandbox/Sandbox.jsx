@@ -17,7 +17,11 @@ import {
   editorShellActions,
   useEditorShellSelector,
 } from "./state/editorStore";
-import { getNextSandboxPatch, getTabFromMode } from "./state/editorShellSync";
+import {
+  getNextSandboxPatch,
+  getTabFromMode,
+  shouldSyncPlayhead,
+} from "./state/editorShellSync";
 
 const Sandbox = () => {
   const contentState = useSandboxState();
@@ -28,6 +32,7 @@ const Sandbox = () => {
   const playhead = useEditorShellSelector((state) => state.playhead);
   const parentRef = useRef(null);
   const progress = useRef("");
+  const ffmpegInitRef = useRef(false);
 
   const getChromeVersion = () => {
     var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
@@ -36,9 +41,12 @@ const Sandbox = () => {
   };
 
   useEffect(() => {
+    if (ffmpegInitRef.current) return;
+    if (typeof contentState.loadFFmpeg !== "function") return;
+
+    ffmpegInitRef.current = true;
     const MIN_CHROME_VERSION = 110;
     const chromeVersion = getChromeVersion();
-    if (typeof contentState.loadFFmpeg !== "function") return;
 
     if (chromeVersion && chromeVersion > MIN_CHROME_VERSION) {
       contentState.loadFFmpeg();
@@ -49,12 +57,13 @@ const Sandbox = () => {
         ffmpeg: true,
       }));
     }
-  }, [contentState.loadFFmpeg]);
+  }, [contentState.loadFFmpeg, setContentState]);
 
   useEffect(() => {
     if (!Number.isFinite(time)) return;
+    if (!shouldSyncPlayhead(time, playhead)) return;
     editorShellActions.setPlayhead(time);
-  }, [time]);
+  }, [time, playhead]);
 
   useEffect(() => {
     const patch = getNextSandboxPatch({
@@ -69,7 +78,7 @@ const Sandbox = () => {
       ...prev,
       ...patch,
     }));
-  }, [activeTab, playhead, mode, time]);
+  }, [activeTab]);
 
   useEffect(() => {
     const nextTab = getTabFromMode(mode);
@@ -127,7 +136,7 @@ const Sandbox = () => {
     return () => {
       observer.disconnect();
     };
-  }, [parentRef.current]);
+  }, []);
 
   useEffect(() => {
     if (contentState.chunkCount > 0) {

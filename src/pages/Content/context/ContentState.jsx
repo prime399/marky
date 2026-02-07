@@ -1,5 +1,4 @@
 import React, {
-  createContext,
   useState,
   useEffect,
   useCallback,
@@ -18,17 +17,17 @@ import { SYNC_STATUS } from "../../../core/project/projectSchema";
 import { applyStateUpdate } from "../../../core/state/immerUpdate";
 import { useAuthStatusQuery } from "../../../core/query/useAuthStatusQuery";
 import {
+  updateContentState,
+  registerContentStateUpdater,
   setContentStateSnapshot,
   useContentStateSelector,
 } from "../state/contentStore";
 
-//create a context, with createContext api
-export const contentStateContext = createContext();
 export const contentStateRef = { current: null };
-export let setContentState = () => {};
+export const setContentState = (updater) => updateContentState(updater);
 export let setTimer = () => {};
 export const useContentState = () => useContentStateSelector((state) => state);
-export const useContentSetter = () => setContentState;
+export const useContentSetter = () => updateContentState;
 
 const CURSOR_EFFECTS = ["target", "highlight", "spotlight"];
 
@@ -970,13 +969,18 @@ const ContentState = (props) => {
   });
   contentStateRef.current = contentState;
 
-  setContentState = (updater) => {
+  const setContentStateInternalSafe = useCallback((updater) => {
     setContentStateInternal((prevState) => {
       const nextState = applyStateUpdate(prevState, updater);
       contentStateRef.current = nextState;
       return nextState;
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    registerContentStateUpdater(setContentStateInternalSafe);
+    return () => registerContentStateUpdater(null);
+  }, [setContentStateInternalSafe]);
 
   useEffect(() => {
     setContentStateSnapshot(contentState);
@@ -1462,13 +1466,10 @@ const ContentState = (props) => {
   }, []);
 
   return (
-    // this is the provider providing state
-    <contentStateContext.Provider
-      value={[contentState, setContentState, timer, setTimer]}
-    >
+    <>
       {props.children}
       <Shortcuts shortcuts={contentState.shortcuts} />
-    </contentStateContext.Provider>
+    </>
   );
 };
 

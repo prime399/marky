@@ -1,6 +1,4 @@
 import React, {
-  createContext,
-  useContext,
   useState,
   useCallback,
   useRef,
@@ -19,6 +17,8 @@ import {
 import { SYNC_STATUS } from "../../../core/project/projectSchema";
 import { applyStateUpdate } from "../../../core/state/immerUpdate";
 import {
+  updateSandboxState,
+  registerSandboxStateUpdater,
   setSandboxStateSnapshot,
   useSandboxStateSelector,
 } from "../state/sandboxStore";
@@ -34,11 +34,10 @@ const chunksStore = localforage.createInstance({
   storeName: "keyvaluepairs",
 });
 
-export const ContentStateContext = createContext();
 export const sandboxContentStateRef = { current: null };
-export let setSandboxContentState = () => {};
+export const setSandboxContentState = (updater) => updateSandboxState(updater);
 export const useSandboxState = () => useSandboxStateSelector((state) => state);
-export const useSandboxSetter = () => setSandboxContentState;
+export const useSandboxSetter = () => updateSandboxState;
 
 const ContentState = (props) => {
   const videoChunks = useRef([]);
@@ -120,7 +119,11 @@ const ContentState = (props) => {
       return next;
     });
   }, []);
-  setSandboxContentState = setContentState;
+
+  useEffect(() => {
+    registerSandboxStateUpdater(setContentState);
+    return () => registerSandboxStateUpdater(null);
+  }, [setContentState]);
 
   useEffect(() => {
     setSandboxStateSnapshot(contentState);
@@ -1399,11 +1402,7 @@ const ContentState = (props) => {
   contentState.restoreBackup = restoreBackup;
   contentState.clearBackup = clearBackup;
 
-  return (
-    <ContentStateContext.Provider value={[contentState, setContentState]}>
-      {props.children}
-    </ContentStateContext.Provider>
-  );
+  return <>{props.children}</>;
 };
 
 export default ContentState;

@@ -969,7 +969,6 @@ const ContentState = (props) => {
     setContentStateInternal((prevState) => {
       const nextState = applyStateUpdate(prevState, updater);
       contentStateRef.current = nextState;
-      setContentStateSnapshot(nextState);
       return nextState;
     });
   };

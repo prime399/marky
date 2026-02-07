@@ -110,7 +110,6 @@ const ContentState = (props) => {
     _setContentState((prev) => {
       const next = applyStateUpdate(prev, updater);
       contentStateRef.current = next;
-      setSandboxStateSnapshot(next);
       return next;
     });
   }, []);

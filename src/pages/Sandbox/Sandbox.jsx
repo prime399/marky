@@ -15,8 +15,8 @@ import { useSandboxStateSelector } from "./state/sandboxStore";
 import { useShallow } from "zustand/react/shallow";
 
 const Sandbox = () => {
-  const [, setContentState] = useContext(ContentStateContext);
-  const contentState = useSandboxStateSelector(
+  const [contextState, setContentState] = useContext(ContentStateContext);
+  const snapshotState = useSandboxStateSelector(
     useShallow((state) => ({
       loadFFmpeg: state.loadFFmpeg,
       blob: state.blob,
@@ -31,6 +31,11 @@ const Sandbox = () => {
       bannerSupport: state.bannerSupport,
     })),
   );
+  const contentState = {
+    ...snapshotState,
+    loadFFmpeg: snapshotState.loadFFmpeg || contextState.loadFFmpeg,
+    getFrame: snapshotState.getFrame || contextState.getFrame,
+  };
   const parentRef = useRef(null);
   const progress = useRef("");
 
@@ -43,6 +48,7 @@ const Sandbox = () => {
   useEffect(() => {
     const MIN_CHROME_VERSION = 110;
     const chromeVersion = getChromeVersion();
+    if (typeof contentState.loadFFmpeg !== "function") return;
 
     if (chromeVersion && chromeVersion > MIN_CHROME_VERSION) {
       contentState.loadFFmpeg();
@@ -53,7 +59,7 @@ const Sandbox = () => {
         ffmpeg: true,
       }));
     }
-  }, []);
+  }, [contentState.loadFFmpeg]);
 
   useEffect(() => {
     if (!contentState.blob || !contentState.ffmpeg) return;

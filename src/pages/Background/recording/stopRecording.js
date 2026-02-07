@@ -69,10 +69,11 @@ export const stopRecording = async () => {
               sendMessageTab(tab.id, { type: "fallback-recording" });
             })
             .catch((err) => {
-              console.error(
-                "❌ Failed to wait for content script:",
+              console.warn(
+                "⚠️ Content script readiness timeout, proceeding anyway:",
                 err.message
               );
+              sendMessageTab(tab.id, { type: "fallback-recording" });
             });
         }
       });
@@ -95,10 +96,11 @@ export const stopRecording = async () => {
               sendChunks();
             })
             .catch((err) => {
-              console.error(
-                "❌ Failed to wait for content script:",
+              console.warn(
+                "⚠️ Content script readiness timeout, proceeding with chunks:",
                 err.message
               );
+              sendChunks();
             });
         }
       });

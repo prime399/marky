@@ -14,8 +14,9 @@ export const sendMessageTab = async (
     );
   };
 
-  if (tabId === null || message === null)
-    return Promise.reject("Tab ID or message is null");
+  if (tabId === null || message === null) {
+    return Promise.resolve(null);
+  }
 
   try {
     const tab = await new Promise((resolve, reject) => {
@@ -37,7 +38,7 @@ export const sendMessageTab = async (
       tab.url === "" ||
       tab.url === "about:blank"
     ) {
-      return Promise.reject("Invalid tab URL");
+      return Promise.resolve(null);
     }
 
     return new Promise((resolve, reject) => {

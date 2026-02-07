@@ -11,15 +11,17 @@ import styles from "../../styles/player/_Player.module.scss";
 
 // Context
 import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
+import { useSandboxStateSelector } from "../../state/sandboxStore";
 
 const Player = () => {
-  const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
+  const [contentState] = useContext(ContentStateContext);
+  const mode = useSandboxStateSelector((state) => state.mode) || contentState.mode;
 
   return (
     <div className={styles.layout}>
-      {contentState.mode === "crop" && <CropNav />}
-      {contentState.mode === "player" && <PlayerNav />}
-      {contentState.mode === "audio" && <AudioNav />}
+      {mode === "crop" && <CropNav />}
+      {mode === "player" && <PlayerNav />}
+      {mode === "audio" && <AudioNav />}
       <div className={styles.content}>
         <Content />
         <RightPanel />

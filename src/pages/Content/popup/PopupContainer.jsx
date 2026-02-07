@@ -37,9 +37,32 @@ import LoggedOut from "./layout/LoggedOut";
 
 // Context
 import { contentStateContext } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const PopupContainer = (props) => {
-  const [contentState, setContentState] = useContext(contentStateContext);
+  const [, setContentState] = useContext(contentStateContext);
+  const contentState = useContentStateSelector(
+    useShallow((state) => ({
+      bigTab: state.bigTab,
+      isLoggedIn: state.isLoggedIn,
+      isSubscribed: state.isSubscribed,
+      onboarding: state.onboarding,
+      showProSplash: state.showProSplash,
+      popupPosition: state.popupPosition || {
+        left: false,
+        right: true,
+        top: true,
+        bottom: false,
+        offsetX: 0,
+        offsetY: 0,
+        fixed: true,
+      },
+      screenityUser: state.screenityUser,
+      settingsOpen: state.settingsOpen,
+      wasLoggedIn: state.wasLoggedIn,
+    })),
+  );
   const contentStateRef = useRef(contentState);
   const [tab, setTab] = useState("record");
   const [badge, setBadge] = useState(TempLogo);

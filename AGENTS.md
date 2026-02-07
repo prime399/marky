@@ -18,6 +18,7 @@
 - `npm run lint`: ESLint autofix for `src/**/*.js`.
 - `npm run prettier`: format JS/TS/CSS/SCSS/JSON/MD.
 - `npm run test:phase0`: required gate for current foundation slice (unit + integration).
+- `npm run test:phase1`: Phase 1 editor-shell gate (unit + integration).
 
 ## Coding Style & Naming Conventions
 - JavaScript/React codebase, 2-space indentation, semicolons, double quotes (match existing files).
@@ -33,6 +34,7 @@
   3. Relevant unpacked-extension flows are manually validated.
 - Test locations:
   - `tests/phase0/`: schema and repository contract tests.
+  - `tests/phase1/`: editor shell model + sync tests.
   - `tests/infra/`: shared utility tests.
 
 ## Commit & Pull Request Guidelines
@@ -58,11 +60,17 @@
     - `@tanstack/react-query` provider + auth query (`src/core/providers`, `src/core/query`),
     - `immer` state updater utility applied in Content/Sandbox context state setters,
     - `webext-bridge` background/content wrappers (`src/core/messaging`).
+  - Phase 1 foundation slice:
+    - unified editor shell state model (`src/core/editor/editorShellModel.js`),
+    - centralized editor shell Zustand store with selection model (`src/pages/Sandbox/state/editorStore.js`),
+    - `Edit`/`Preview` shell tab UI (`src/pages/Sandbox/layout/ShellTabs.jsx`),
+    - tab/mode/playhead sync layer (`src/pages/Sandbox/state/editorShellSync.js`),
+    - sandbox action exposure refactor to prevent read-only state mutation in runtime.
 - Current entrypoints wrapped with shared providers:
   - `src/pages/Content/index.jsx`
   - `src/pages/Content/index.js`
   - `src/pages/Sandbox/index.jsx`
 - Next recommended step:
-  1. Move high-frequency context consumers to direct Zustand selectors.
-  2. Replace remaining `chrome.runtime.sendMessage` auth/project callers with bridge client wrappers.
-  3. Start Phase 1 (`Edit/Preview` shell + centralized editor store) only after tests are extended for new selectors/actions.
+  1. Begin Phase 2 timeline primitives using editor shell selection model.
+  2. Move high-frequency context consumers to granular Zustand selectors for render performance.
+  3. Replace remaining `chrome.runtime.sendMessage` auth/project callers with bridge client wrappers.

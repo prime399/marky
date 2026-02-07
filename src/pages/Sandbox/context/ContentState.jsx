@@ -1,6 +1,7 @@
 import React, {
   useState,
   useCallback,
+  useMemo,
   useRef,
 } from "react";
 import { useEffect } from "react";
@@ -124,11 +125,6 @@ const ContentState = (props) => {
     registerSandboxStateUpdater(setContentState);
     return () => registerSandboxStateUpdater(null);
   }, [setContentState]);
-
-  useEffect(() => {
-    setSandboxStateSnapshot(contentState);
-    sandboxContentStateRef.current = contentState;
-  }, [contentState]);
 
   const buildBlobFromChunks = async () => {
     const items = [];
@@ -1384,23 +1380,55 @@ const ContentState = (props) => {
     });
   };
 
-  contentState.undo = undo;
-  contentState.redo = redo;
-  contentState.addToHistory = addToHistory;
-  contentState.handleTrim = handleTrim;
-  contentState.handleMute = handleMute;
-  contentState.download = download;
-  contentState.handleCrop = handleCrop;
-  contentState.handleReencode = handleReencode;
-  contentState.getFrame = getImage;
-  contentState.downloadGIF = downloadGIF;
-  contentState.downloadWEBM = downloadWEBM;
-  contentState.addAudio = addAudio;
-  contentState.loadFFmpeg = loadFFmpeg;
-  contentState.waitForUpdatedBlob = waitForUpdatedBlob;
-  contentState.createBackup = createBackup;
-  contentState.restoreBackup = restoreBackup;
-  contentState.clearBackup = clearBackup;
+  const sandboxActions = useMemo(
+    () => ({
+      undo,
+      redo,
+      addToHistory,
+      handleTrim,
+      handleMute,
+      download,
+      handleCrop,
+      handleReencode,
+      getFrame: getImage,
+      downloadGIF,
+      downloadWEBM,
+      addAudio,
+      loadFFmpeg,
+      waitForUpdatedBlob,
+      createBackup,
+      restoreBackup,
+      clearBackup,
+    }),
+    [
+      undo,
+      redo,
+      addToHistory,
+      handleTrim,
+      handleMute,
+      download,
+      handleCrop,
+      handleReencode,
+      getImage,
+      downloadGIF,
+      downloadWEBM,
+      addAudio,
+      loadFFmpeg,
+      waitForUpdatedBlob,
+      createBackup,
+      restoreBackup,
+      clearBackup,
+    ],
+  );
+
+  useEffect(() => {
+    const nextState = {
+      ...contentState,
+      ...sandboxActions,
+    };
+    setSandboxStateSnapshot(nextState);
+    sandboxContentStateRef.current = nextState;
+  }, [contentState, sandboxActions]);
 
   return <>{props.children}</>;
 };

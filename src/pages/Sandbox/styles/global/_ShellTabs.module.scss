@@ -1,0 +1,43 @@
+.wrap {
+  position: sticky;
+  top: 12px;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid #dfe3eb;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(22, 28, 45, 0.08);
+}
+
+.tabButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  line-height: 1;
+  color: #5c6470;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tabButton:hover {
+  background-color: #eef3ff;
+  color: #1f2a44;
+}
+
+.active {
+  color: #14213d;
+  background-color: #dde7ff;
+  font-weight: 600;
+}

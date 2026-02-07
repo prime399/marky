@@ -5,16 +5,27 @@ import React, { useEffect, useRef } from "react";
 // Layout
 import Editor from "./layout/editor/Editor";
 import Player from "./layout/player/Player";
+import ShellTabs from "./layout/ShellTabs";
 import Modal from "./components/global/Modal";
 
 import HelpButton from "./components/player/HelpButton";
 
 // Context
 import { useSandboxState, useSandboxSetter } from "./context/ContentState"; // Import the ContentState context
+import { useSandboxStateSelector } from "./state/sandboxStore";
+import {
+  editorShellActions,
+  useEditorShellSelector,
+} from "./state/editorStore";
+import { getNextSandboxPatch, getTabFromMode } from "./state/editorShellSync";
 
 const Sandbox = () => {
   const contentState = useSandboxState();
   const setContentState = useSandboxSetter();
+  const mode = useSandboxStateSelector((state) => state.mode);
+  const time = useSandboxStateSelector((state) => state.time);
+  const activeTab = useEditorShellSelector((state) => state.activeTab);
+  const playhead = useEditorShellSelector((state) => state.playhead);
   const parentRef = useRef(null);
   const progress = useRef("");
 
@@ -39,6 +50,33 @@ const Sandbox = () => {
       }));
     }
   }, [contentState.loadFFmpeg]);
+
+  useEffect(() => {
+    if (!Number.isFinite(time)) return;
+    editorShellActions.setPlayhead(time);
+  }, [time]);
+
+  useEffect(() => {
+    const patch = getNextSandboxPatch({
+      activeTab,
+      currentMode: mode,
+      currentTime: time,
+      playhead,
+    });
+
+    if (Object.keys(patch).length === 0) return;
+    setContentState((prev) => ({
+      ...prev,
+      ...patch,
+    }));
+  }, [activeTab, playhead, mode, time]);
+
+  useEffect(() => {
+    const nextTab = getTabFromMode(mode);
+    if (nextTab !== activeTab) {
+      editorShellActions.setActiveTab(nextTab);
+    }
+  }, [mode, activeTab]);
 
   useEffect(() => {
     if (!contentState.blob || !contentState.ffmpeg) return;
@@ -132,6 +170,12 @@ const Sandbox = () => {
       <Modal />
       <video></video>
       {/* Render the WaveformGenerator component and pass the ffmpeg instance as a prop */}
+      {contentState.ready && (
+        <ShellTabs
+          activeTab={activeTab}
+          onTabChange={editorShellActions.setActiveTab}
+        />
+      )}
       {contentState.ffmpeg &&
         contentState.ready &&
         contentState.mode === "edit" && <Editor />}

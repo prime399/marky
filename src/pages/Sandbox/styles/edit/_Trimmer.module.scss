@@ -6,12 +6,9 @@
   object-fit: cover;
 }
 .trimmerContainer {
-  position: absolute;
-  bottom: 75px;
-  left: 0px;
-  right: 0px;
-  margin: auto;
-  width: 90%;
+  position: relative;
+  margin: 12px auto 0;
+  width: 94%;
   height: 80px;
 }
 .thumbstrip {
@@ -32,7 +29,7 @@
   pointer-events: none;
 }
 .trimWrap {
-  position: absolute;
+  position: relative;
   top: 0px;
   left: 0px;
   z-index: 999999;

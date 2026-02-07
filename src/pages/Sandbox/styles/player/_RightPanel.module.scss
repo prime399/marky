@@ -50,6 +50,36 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.templateChip {
+  border: 1px solid $color-border;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fff;
+  color: $color-text-primary;
+  font-family: $font-bold;
+  text-align: left;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    cursor: pointer;
+    background: #f1f6ff;
+    border-color: #d3e2ff;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
 .alert {
   display: flex;
   width: 100%;

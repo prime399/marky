@@ -3,9 +3,7 @@ import "./styles/global/_app.scss";
 
 import React, { useEffect, useRef } from "react";
 // Layout
-import Editor from "./layout/editor/Editor";
 import Player from "./layout/player/Player";
-import ShellTabs from "./layout/ShellTabs";
 import Modal from "./components/global/Modal";
 
 import HelpButton from "./components/player/HelpButton";
@@ -82,6 +80,7 @@ const Sandbox = () => {
 
   useEffect(() => {
     const nextTab = getTabFromMode(mode);
+    if (mode === "player") return;
     if (nextTab !== activeTab) {
       editorShellActions.setActiveTab(nextTab);
     }
@@ -179,16 +178,7 @@ const Sandbox = () => {
       <Modal />
       <video></video>
       {/* Render the WaveformGenerator component and pass the ffmpeg instance as a prop */}
-      {contentState.ready && (
-        <ShellTabs
-          activeTab={activeTab}
-          onTabChange={editorShellActions.setActiveTab}
-        />
-      )}
-      {contentState.ffmpeg &&
-        contentState.ready &&
-        contentState.mode === "edit" && <Editor />}
-      {contentState.mode != "edit" && contentState.ready && <Player />}
+      {contentState.ready && <Player />}
       {!contentState.ready && (
         <div className="wrap">
           <img className="logo" src="/assets/logo-text.svg" />

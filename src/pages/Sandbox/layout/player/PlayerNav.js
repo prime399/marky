@@ -1,6 +1,10 @@
-import React, { useContext, useRef, useEffect } from "react";
+import React from "react";
 import styles from "../../styles/player/_Nav.module.scss";
-import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
+import ShellTabs from "../ShellTabs";
+import {
+  editorShellActions,
+  useEditorShellSelector,
+} from "../../state/editorStore";
 
 // Icons
 import { ReactSVG } from "react-svg";
@@ -8,17 +12,10 @@ import { ReactSVG } from "react-svg";
 const URL = "/assets/";
 
 const StarIcon = URL + "editor/icons/help-nav.svg";
-const HeartIcon = URL + "editor/icons/heart.svg";
 const UnlockIcon = URL + "editor/icons/unlock.svg";
 
 const PlayerNav = () => {
-  const contentState = useSandboxState();
-  const setContentState = useSandboxSetter(); // Access the ContentState context
-  const contentStateRef = useRef(null);
-
-  useEffect(() => {
-    contentStateRef.current = contentState;
-  }, [contentState]);
+  const activeTab = useEditorShellSelector((state) => state.activeTab);
 
   return (
     <div className={styles.nav}>
@@ -31,6 +28,13 @@ const PlayerNav = () => {
           className={styles.navLeft}
         >
           <img src={URL + "editor/logo.svg"} alt="Screenity Logo" />
+        </div>
+        <div className={styles.navCenter}>
+          <ShellTabs
+            activeTab={activeTab}
+            onTabChange={editorShellActions.setActiveTab}
+            inline
+          />
         </div>
         <div className={styles.navRight}>
           <button

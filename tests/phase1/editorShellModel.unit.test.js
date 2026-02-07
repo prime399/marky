@@ -25,7 +25,7 @@ test("tab and mode mapping returns stable defaults", () => {
   assert.equal(getTabFromMode("crop"), EDIT_TAB);
   assert.equal(getModeFromTab(PREVIEW_TAB, "crop"), "player");
   assert.equal(getModeFromTab(EDIT_TAB, "crop"), "crop");
-  assert.equal(getModeFromTab(EDIT_TAB, "unknown"), "edit");
+  assert.equal(getModeFromTab(EDIT_TAB, "unknown"), "player");
 });
 
 test("playhead sync check uses epsilon guard", () => {

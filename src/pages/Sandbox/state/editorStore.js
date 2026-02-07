@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import editorShellModel from "../../../core/editor/editorShellModel";
+import timelineModel from "../../../core/editor/timelineModel";
 
 const {
   EDIT_TAB,
@@ -10,9 +11,14 @@ const {
   resolveSelection,
 } = editorShellModel;
 
+const { reduceTimelineState } = timelineModel;
+
 const useEditorStore = create((set) => ({
   activeTab: EDIT_TAB,
   playhead: 0,
+  scenes: [],
+  sceneRanges: [],
+  timelineDuration: 0,
   ...INITIAL_SELECTION,
   setActiveTab: (tab) =>
     set((state) => {
@@ -22,18 +28,75 @@ const useEditorStore = create((set) => ({
     }),
   setPlayhead: (seconds) =>
     set((state) => {
-      const nextPlayhead = clampPlayhead(seconds);
-      if (state.playhead === nextPlayhead) return state;
-      return { playhead: nextPlayhead };
+      const baselinePlayhead = clampPlayhead(seconds);
+      const nextState = reduceTimelineState(state, {
+        type: "SET_PLAYHEAD",
+        playhead: baselinePlayhead,
+      });
+      if (state.playhead === nextState.playhead) return state;
+      return nextState;
     }),
+  scrubPlayhead: (delta) =>
+    set((state) => reduceTimelineState(state, { type: "SCRUB_PLAYHEAD", delta })),
+  setScenes: (scenes) =>
+    set((state) => reduceTimelineState(state, { type: "SET_SCENES", scenes })),
+  addScene: (scene, index) =>
+    set((state) =>
+      reduceTimelineState(state, {
+        type: "ADD_SCENE",
+        scene,
+        index,
+      }),
+    ),
+  removeScene: (sceneId) =>
+    set((state) => reduceTimelineState(state, { type: "REMOVE_SCENE", sceneId })),
+  duplicateScene: (sceneId) =>
+    set((state) =>
+      reduceTimelineState(state, {
+        type: "DUPLICATE_SCENE",
+        sceneId,
+      }),
+    ),
+  reorderScenes: (fromIndex, toIndex) =>
+    set((state) =>
+      reduceTimelineState(state, {
+        type: "REORDER_SCENES",
+        fromIndex,
+        toIndex,
+      }),
+    ),
+  trimSceneStart: (sceneId, trimStart) =>
+    set((state) =>
+      reduceTimelineState(state, {
+        type: "TRIM_SCENE_START",
+        sceneId,
+        trimStart,
+      }),
+    ),
+  trimSceneEnd: (sceneId, trimEnd) =>
+    set((state) =>
+      reduceTimelineState(state, {
+        type: "TRIM_SCENE_END",
+        sceneId,
+        trimEnd,
+      }),
+    ),
   setSelection: (selection) =>
     set((state) => resolveSelection(state, selection)),
   setSelectedSceneId: (selectedSceneId) =>
-    set({
-      selectedSceneId,
-      selectedTrackId: null,
-      selectedItemId: null,
-    }),
+    set((state) =>
+      reduceTimelineState(
+        {
+          ...state,
+          selectedTrackId: null,
+          selectedItemId: null,
+        },
+        {
+          type: "SELECT_SCENE",
+          sceneId: selectedSceneId,
+        },
+      ),
+    ),
   setSelectedTrackId: (selectedTrackId) =>
     set({
       selectedTrackId,
@@ -45,6 +108,9 @@ const useEditorStore = create((set) => ({
     set({
       activeTab: EDIT_TAB,
       playhead: 0,
+      scenes: [],
+      sceneRanges: [],
+      timelineDuration: 0,
       ...INITIAL_SELECTION,
     }),
 }));
@@ -54,6 +120,17 @@ export const useEditorShellSelector = (selector) => useEditorStore(selector);
 export const editorShellActions = {
   setActiveTab: (tab) => useEditorStore.getState().setActiveTab(tab),
   setPlayhead: (seconds) => useEditorStore.getState().setPlayhead(seconds),
+  scrubPlayhead: (delta) => useEditorStore.getState().scrubPlayhead(delta),
+  setScenes: (scenes) => useEditorStore.getState().setScenes(scenes),
+  addScene: (scene, index) => useEditorStore.getState().addScene(scene, index),
+  removeScene: (sceneId) => useEditorStore.getState().removeScene(sceneId),
+  duplicateScene: (sceneId) => useEditorStore.getState().duplicateScene(sceneId),
+  reorderScenes: (fromIndex, toIndex) =>
+    useEditorStore.getState().reorderScenes(fromIndex, toIndex),
+  trimSceneStart: (sceneId, trimStart) =>
+    useEditorStore.getState().trimSceneStart(sceneId, trimStart),
+  trimSceneEnd: (sceneId, trimEnd) =>
+    useEditorStore.getState().trimSceneEnd(sceneId, trimEnd),
   setSelection: (selection) => useEditorStore.getState().setSelection(selection),
   setSelectedSceneId: (sceneId) =>
     useEditorStore.getState().setSelectedSceneId(sceneId),
@@ -67,6 +144,7 @@ export const editorShellActions = {
 
 export const editorShellTestUtils = {
   ...editorShellModel,
+  ...timelineModel,
 };
 
 export default useEditorStore;

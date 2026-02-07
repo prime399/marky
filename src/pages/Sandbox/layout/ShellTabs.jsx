@@ -20,9 +20,9 @@ const getLabel = (labelKey, fallbackLabel) => {
   return text || fallbackLabel;
 };
 
-const ShellTabs = ({ activeTab, onTabChange }) => (
-  <div className={styles.wrap}>
-    <div className={styles.tabs} role="tablist" aria-label="Editor view">
+const ShellTabs = ({ activeTab, onTabChange, inline = false }) => (
+  <div className={inline ? styles.wrapInline : styles.wrap}>
+    <div className={inline ? styles.tabsInline : styles.tabs} role="tablist" aria-label="Editor view">
       {tabs.map((tab) => {
         const isActive = tab.id === activeTab;
         return (
@@ -31,7 +31,7 @@ const ShellTabs = ({ activeTab, onTabChange }) => (
             type="button"
             role="tab"
             aria-selected={isActive}
-            className={`${styles.tabButton} ${isActive ? styles.active : ""}`}
+            className={`${inline ? styles.tabButtonInline : styles.tabButton} ${isActive ? styles.active : ""}`}
             onClick={() => onTabChange(tab.id)}
           >
             {getLabel(tab.labelKey, tab.fallbackLabel)}

@@ -1,12 +1,18 @@
-import React, { useContext } from "react";
+import React from "react";
 import styles from "../../styles/edit/_EditorNav.module.scss";
 import { useSandboxState, useSandboxSetter } from "../../context/ContentState"; // Import the ContentState context
+import ShellTabs from "../ShellTabs";
+import {
+  editorShellActions,
+  useEditorShellSelector,
+} from "../../state/editorStore";
 
 const URL = "/assets/";
 
 const CropNav = () => {
   const contentState = useSandboxState();
   const setContentState = useSandboxSetter(); // Access the ContentState context
+  const activeTab = useEditorShellSelector((state) => state.activeTab);
 
   const handleCancel = () => {
     setContentState((prevContentState) => ({
@@ -68,10 +74,11 @@ const CropNav = () => {
           <img src={URL + "editor/logo.svg"} alt="Logo" />
         </div>
         <div className={styles.editorNavCenter}>
-          <div className={styles.editorNavTitle}>
-            {chrome.i18n.getMessage("sandboxEditorMainTitle") + " "}{" "}
-            <span className={styles.beta}>BETA</span>
-          </div>
+          <ShellTabs
+            activeTab={activeTab}
+            onTabChange={editorShellActions.setActiveTab}
+            inline
+          />
         </div>
         <div className={styles.editorNavRight}>
           <button

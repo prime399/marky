@@ -9,6 +9,15 @@
   box-sizing: border-box;
   left: 0px;
 }
+
+.mainColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
 .player {
   position: absolute;
 }
@@ -17,6 +26,9 @@
   .content {
     display: block !important;
     height: auto !important;
+  }
+  .mainColumn {
+    display: block !important;
   }
   .player {
     position: relative;

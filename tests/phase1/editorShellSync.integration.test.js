@@ -33,7 +33,7 @@ test("preview tab transition keeps playhead and switches sandbox to player mode"
   });
 });
 
-test("edit tab transition restores edit mode and leaves stable playhead unchanged", () => {
+test("edit tab keeps player mode while preserving stable playhead", () => {
   const sandboxState = {
     mode: "player",
     time: 12,
@@ -52,7 +52,7 @@ test("edit tab transition restores edit mode and leaves stable playhead unchange
   });
 
   assert.deepEqual(nextState, {
-    mode: "edit",
+    mode: "player",
     time: 12,
     updatePlayerTime: false,
   });

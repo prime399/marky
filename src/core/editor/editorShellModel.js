@@ -23,7 +23,7 @@ const getTabFromMode = (mode) => {
 const getModeFromTab = (tab, previousMode) => {
   if (tab === PREVIEW_TAB) return "player";
   if (EDIT_MODES.has(previousMode)) return previousMode;
-  return "edit";
+  return "player";
 };
 
 const shouldSyncPlayhead = (nextValue, currentValue, epsilon = 0.01) => {

@@ -17,6 +17,7 @@
 - `npm run package`: create `extension.zip` from `build/`.
 - `npm run lint`: ESLint autofix for `src/**/*.js`.
 - `npm run prettier`: format JS/TS/CSS/SCSS/JSON/MD.
+- `npm run test:phase0`: required gate for current foundation slice (unit + integration).
 
 ## Coding Style & Naming Conventions
 - JavaScript/React codebase, 2-space indentation, semicolons, double quotes (match existing files).
@@ -26,12 +27,13 @@
 - Run `npm run lint` and `npm run prettier` before opening a PR.
 
 ## Testing Guidelines
-- No formal automated test suite is currently configured.
-- Minimum validation for each change:
-  1. `npm run build` succeeds.
-  2. Relevant flow works in unpacked extension (`chrome://extensions` -> Load unpacked `build/`).
-  3. For recording/editor changes, test start, stop, and post-recording/editor paths.
-- If adding tests, colocate with feature modules and document run command in PR.
+- Current enforced baseline:
+  1. `npm run test:phase0` passes.
+  2. `npm run build` passes.
+  3. Relevant unpacked-extension flows are manually validated.
+- Test locations:
+  - `tests/phase0/`: schema and repository contract tests.
+  - `tests/infra/`: shared utility tests.
 
 ## Commit & Pull Request Guidelines
 - Commit style in this repo is short, imperative, and scoped (e.g., `Fix recording duration issue`).
@@ -46,3 +48,21 @@
 ## Security & Configuration Tips
 - Never commit secrets. Use local `.env` for runtime values.
 - Cloud/pro flows are controlled by env flags (`SCREENITY_*`); keep local-first behavior functional when unset.
+
+## Migration Status (Handoff)
+- Completed:
+  - Phase 0 foundation from `ROADMAP.md` with schema migration + local project repository.
+  - Local-first project create/load/save/list handlers in background.
+  - Added stack migration layer:
+    - `zustand` store scaffold (`src/core/state/cloudStore.js`),
+    - `@tanstack/react-query` provider + auth query (`src/core/providers`, `src/core/query`),
+    - `immer` state updater utility applied in Content/Sandbox context state setters,
+    - `webext-bridge` background/content wrappers (`src/core/messaging`).
+- Current entrypoints wrapped with shared providers:
+  - `src/pages/Content/index.jsx`
+  - `src/pages/Content/index.js`
+  - `src/pages/Sandbox/index.jsx`
+- Next recommended step:
+  1. Move high-frequency context consumers to direct Zustand selectors.
+  2. Replace remaining `chrome.runtime.sendMessage` auth/project callers with bridge client wrappers.
+  3. Start Phase 1 (`Edit/Preview` shell + centralized editor store) only after tests are extended for new selectors/actions.

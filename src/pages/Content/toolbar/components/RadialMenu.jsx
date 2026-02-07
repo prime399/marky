@@ -82,10 +82,18 @@ const RadialMenu = (props) => {
   }, [buttonRef, radialMenuRef]);
 
   return (
-    <Popover.Root open={open} onOpenChange={() => setOpen(!open)}>
+    <Popover.Root open={open} onOpenChange={setOpen}>
       <TooltipWrap content="Color and stroke" shortcut={props.shortcut}>
-        <Popover.Trigger as="div" ref={ref} data-color-trigger="true">
-          <div className="ToolbarButton" component="div" ref={buttonRef}>
+        <Popover.Trigger asChild>
+          <div
+            className="ToolbarButton"
+            component="div"
+            ref={(node) => {
+              buttonRef.current = node;
+              ref.current = node;
+            }}
+            data-color-trigger="true"
+          >
             <div
               className="ColorPicker"
               style={{ backgroundColor: contentState.color }}
@@ -94,7 +102,11 @@ const RadialMenu = (props) => {
         </Popover.Trigger>
       </TooltipWrap>
       <Popover.Portal forceMount container={ref.current}>
-        <Popover.Content avoidCollisions={false} asChild onOpenAutoFocus>
+        <Popover.Content
+          avoidCollisions={false}
+          asChild
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
           <div
             className={fullwheel ? "radial-menu color-wheel" : "radial-menu"}
             ref={radialMenuRef}

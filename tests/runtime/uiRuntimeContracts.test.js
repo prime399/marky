@@ -40,3 +40,17 @@ test("Content modal does not pass non-string href props into anchor tags", () =>
     "learnMoreLink callback must be called via onClick, not bound to href",
   );
 });
+
+test("Radix callback props are functions, not boolean shorthand", () => {
+  const radialMenu = read("src/pages/Content/toolbar/components/RadialMenu.jsx");
+  assert.equal(
+    radialMenu.includes("onOpenAutoFocus>"),
+    false,
+    "onOpenAutoFocus must be a function callback",
+  );
+  assert.equal(
+    radialMenu.includes("onOpenAutoFocus "),
+    false,
+    "onOpenAutoFocus shorthand boolean usage is invalid for Radix callbacks",
+  );
+});

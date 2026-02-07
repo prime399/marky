@@ -81,11 +81,15 @@ const Modal = (props) => {
     >
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="AlertDialogOverlay" />
-        <AlertDialog.Content className="AlertDialogContent">
-          <AlertDialog.Title className="AlertDialogTitle">
+        <AlertDialog.Content
+          className="AlertDialogContent"
+          aria-labelledby="sandbox-modal-title"
+          aria-describedby="sandbox-modal-description"
+        >
+          <AlertDialog.Title className="AlertDialogTitle" id="sandbox-modal-title">
             {title}
           </AlertDialog.Title>
-          <AlertDialog.Description className="AlertDialogDescription">
+          <AlertDialog.Description className="AlertDialogDescription" id="sandbox-modal-description">
             {description || ""}
             {learnmore && " "}
             {learnmore && (

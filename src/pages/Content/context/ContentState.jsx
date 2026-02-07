@@ -1202,6 +1202,13 @@ const ContentState = (props) => {
   }, [updateTimerFromStorage]);
 
   useEffect(() => {
+    setContentState((prev) => {
+      if (prev.time === timer) return prev;
+      return { ...prev, time: timer };
+    });
+  }, [timer]);
+
+  useEffect(() => {
     const onChanged = (changes, area) => {
       if (area !== "local") return;
 

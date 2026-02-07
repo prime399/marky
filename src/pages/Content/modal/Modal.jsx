@@ -86,11 +86,15 @@ const Modal = (props) => {
         )}
       >
         <div className="AlertDialogOverlay"></div>
-        <AlertDialog.Content className="AlertDialogContent">
-          <AlertDialog.Title className="AlertDialogTitle">
+        <AlertDialog.Content
+          className="AlertDialogContent"
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
+        >
+          <AlertDialog.Title className="AlertDialogTitle" id="modal-title">
             {title}
           </AlertDialog.Title>
-          <AlertDialog.Description className="AlertDialogDescription">
+          <AlertDialog.Description className="AlertDialogDescription" id="modal-description">
             {(description || "").split("\n").map((line, idx) => (
               <React.Fragment key={idx}>
                 {line}

@@ -38,8 +38,8 @@ const Modal = (props) => {
       sideButton = false,
       sideButtonAction = () => {}
     ) => {
-      setTitle(title);
-      setDescription(description);
+      setTitle(title || "");
+      setDescription(description || "");
       setButton1(button1);
       setButton2(button2);
       setShowModal(true);
@@ -80,7 +80,6 @@ const Modal = (props) => {
         setShowModal(open);
       }}
     >
-      <AlertDialog.Trigger asChild />
       <AlertDialog.Portal
         container={props.shadowRef.current.shadowRoot.querySelector(
           ".container"
@@ -101,7 +100,17 @@ const Modal = (props) => {
             {learnmore && (
               <>
                 {" "}
-                <a href={learnMoreLink} target="_blank">
+                <a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (typeof learnMoreLink === "function") {
+                      learnMoreLink();
+                    }
+                  }}
+                >
                   {learnmore}
                 </a>
               </>

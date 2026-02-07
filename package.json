@@ -18,7 +18,9 @@
     "test:phase0": "npm run test:unit && npm run test:integration",
     "test:phase1:unit": "node --test tests/phase1/editorShellModel.unit.test.js",
     "test:phase1:integration": "node --test tests/phase1/editorShellSync.integration.test.js",
-    "test:phase1": "npm run test:phase1:unit && npm run test:phase1:integration"
+    "test:phase1": "npm run test:phase1:unit && npm run test:phase1:integration",
+    "test:runtime": "node --test tests/runtime/uiRuntimeContracts.test.js",
+    "test:critical": "npm run test:phase0 && npm run test:phase1 && npm run test:runtime && npm run build"
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.27.1",

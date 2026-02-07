@@ -38,8 +38,8 @@ const Modal = (props) => {
       sideButton = false,
       sideButtonAction = () => {}
     ) => {
-      setTitle(title);
-      setDescription(description);
+      setTitle(title || "");
+      setDescription(description || "");
       setButton1(button1);
       setButton2(button2);
       setShowModal(true);
@@ -79,7 +79,6 @@ const Modal = (props) => {
         setShowModal(open);
       }}
     >
-      <AlertDialog.Trigger asChild />
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="AlertDialogOverlay" />
         <AlertDialog.Content className="AlertDialogContent">

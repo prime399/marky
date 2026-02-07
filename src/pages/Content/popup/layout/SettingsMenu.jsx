@@ -147,7 +147,7 @@ const SettingsMenu = (props) => {
         )}
       >
         <DropdownMenu.Content className="DropdownMenuContent" sideOffset={5}>
-          {!contentState.isSubscribed && !contentState.isLoggedIn && (
+          {(
             <DropdownMenu.Sub
               open={openResize}
               onOpenChange={(open) => {
@@ -300,7 +300,7 @@ const SettingsMenu = (props) => {
               </DropdownMenu.Portal>
             </DropdownMenu.Sub>
           )}
-          {!contentState.isSubscribed && !contentState.isLoggedIn && (
+          {(
             <DropdownMenu.Sub
               open={openQuality}
               onOpenChange={(open) => {
@@ -544,9 +544,7 @@ const SettingsMenu = (props) => {
               <img src={CheckWhiteIcon} />
             </DropdownMenu.ItemIndicator>
           </DropdownMenu.CheckboxItem>
-          {!oldChrome &&
-            !contentState.isSubscribed &&
-            !contentState.isLoggedIn && (
+          {!oldChrome && (
               <DropdownMenu.CheckboxItem
                 className="DropdownMenuItem"
                 onSelect={(e) => {
@@ -574,7 +572,7 @@ const SettingsMenu = (props) => {
                 </DropdownMenu.ItemIndicator>
               </DropdownMenu.CheckboxItem>
             )}
-          {!contentState.isSubscribed && !contentState.isLoggedIn && (
+          {(
             <DropdownMenu.Item
               className="DropdownMenuItem"
               onSelect={(e) => {
@@ -586,7 +584,7 @@ const SettingsMenu = (props) => {
               {chrome.i18n.getMessage("restoreRecording")}
             </DropdownMenu.Item>
           )}
-          {!contentState.isSubscribed && !contentState.isLoggedIn && (
+          {(
             <DropdownMenu.Item
               className="DropdownMenuItem"
               onSelect={(e) => {

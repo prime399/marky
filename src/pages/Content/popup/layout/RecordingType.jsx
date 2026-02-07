@@ -194,20 +194,15 @@ const RecordingType = (props) => {
               name="flip-camera"
               value="cameraFlipped"
             />
-            {(!contentState.isLoggedIn || contentState.instantMode) && (
-              <div style={{ pointerEvents: "auto" }}>
-                <Switch
-                  label={chrome.i18n.getMessage("backgroundEffectsLabel")}
-                  name="background-effects-active"
-                  value="backgroundEffectsActive"
-                />
-              </div>
-            )}
+            <div style={{ pointerEvents: "auto" }}>
+              <Switch
+                label={chrome.i18n.getMessage("backgroundEffectsLabel")}
+                name="background-effects-active"
+                value="backgroundEffectsActive"
+              />
+            </div>
 
-            {contentState.backgroundEffectsActive &&
-              (!contentState.isLoggedIn || contentState.instantMode) && (
-                <BackgroundEffects />
-              )}
+            {contentState.backgroundEffectsActive && <BackgroundEffects />}
           </div>
         )}
 
@@ -281,8 +276,7 @@ const RecordingType = (props) => {
           {contentState.customRegion && <RegionDimensions />}
         </div>
       )}
-      {contentState.isLoggedIn &&
-        !contentState.recordingToScene &&
+      {!contentState.recordingToScene &&
         CLOUD_FEATURES_ENABLED && (
           <>
             <div className="popup-content-divider"></div>

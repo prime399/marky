@@ -33,7 +33,6 @@ import VideosTab from "./layout/VideosTab";
 // Layouts
 import Announcement from "./layout/Announcement";
 import SettingsMenu from "./layout/SettingsMenu";
-import InactiveSubscription from "./layout/InactiveSubscription";
 import LoggedOut from "./layout/LoggedOut";
 
 // Context
@@ -461,37 +460,7 @@ const PopupContainer = (props) => {
           </div>
           <div className="popup-nav"></div>
           <div className="popup-content">
-            {isCloudBuild &&
-            contentState.isSubscribed === false &&
-            contentState.isLoggedIn === true ? (
-              <InactiveSubscription
-                subscription={contentState.proSubscription}
-                hasSubscribedBefore={contentState.hasSubscribedBefore}
-                onManageClick={() => {
-                  const type = contentState.hasSubscribedBefore
-                    ? "handle-reactivate"
-                    : "handle-upgrade";
-                  chrome.runtime.sendMessage({ type });
-                }}
-                onDowngradeClick={async () => {
-                  chrome.runtime.sendMessage({ type: "handle-logout" });
-                  setContentState((prev) => ({
-                    ...prev,
-                    isLoggedIn: false,
-                    isSubscribed: false,
-                    screenityUser: null,
-                    proSubscription: null,
-                    wasLoggedIn: false,
-                    bigTab: "record",
-                  }));
-                  contentState.openToast(
-                    chrome.i18n.getMessage("loggedOutToastTitle"),
-                    () => {},
-                    2000
-                  );
-                }}
-              />
-            ) : isCloudBuild && (onboarding || showProSplash) ? (
+            {isCloudBuild && (onboarding || showProSplash) ? (
               <Welcome
                 setOnboarding={setOnboarding}
                 setContentState={setContentState}

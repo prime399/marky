@@ -35,8 +35,6 @@ export const stopRecording = async () => {
     Number.isFinite(startTime) && startTime > 0
       ? Math.max(0, now - startTime - basePaused - extraPaused)
       : 0;
-  const maxDuration = 7 * 60 * 1000;
-
   chrome.storage.local.set({
     recording: false,
     recordingDuration: duration,
@@ -69,33 +67,6 @@ export const stopRecording = async () => {
             .then(() => {
               // Use fallback-recording for WebCodecs flow
               sendMessageTab(tab.id, { type: "fallback-recording" });
-            })
-            .catch((err) => {
-              console.error(
-                "❌ Failed to wait for content script:",
-                err.message
-              );
-            });
-        }
-      });
-    });
-
-    chrome.runtime.sendMessage({ type: "turn-off-pip" });
-  } else if (duration > maxDuration) {
-    // Fallback for large recordings without WebCodecs - use viewer mode
-
-    chrome.tabs.create({ url: "editorviewer.html", active: true }, (tab) => {
-      chrome.tabs.onUpdated.addListener(function _(
-        tabId,
-        changeInfo,
-        updatedTab
-      ) {
-        if (tabId === tab.id && changeInfo.status === "complete") {
-          chrome.tabs.onUpdated.removeListener(_);
-          chrome.storage.local.set({ sandboxTab: tab.id });
-          waitForContentScript(tab.id)
-            .then(() => {
-              sendMessageTab(tab.id, { type: "viewer-recording" });
             })
             .catch((err) => {
               console.error(

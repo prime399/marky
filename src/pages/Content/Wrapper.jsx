@@ -302,10 +302,6 @@ const Wrapper = () => {
               <Countdown />
               {contentState.recordingType != "camera" &&
                 !contentState.onboarding &&
-                !(
-                  contentState.isSubscribed === false &&
-                  contentState.isLoggedIn === true
-                ) &&
                 !(!contentState.isLoggedIn && contentState.wasLoggedIn) && (
                   <Camera shadowRef={shadowRef} />
                 )}
@@ -314,10 +310,6 @@ const Wrapper = () => {
               )}
               {!(contentState.hideToolbar && contentState.hideUI) &&
                 !contentState.onboarding &&
-                !(
-                  contentState.isSubscribed === false &&
-                  contentState.isLoggedIn === true
-                ) &&
                 !(!contentState.isLoggedIn && contentState.wasLoggedIn) && (
                   <Toolbar />
                 )}

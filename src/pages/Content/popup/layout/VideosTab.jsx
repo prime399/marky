@@ -256,61 +256,7 @@ const VideosTab = (props) => {
   };
 
   return (
-    <div
-      className={contentState.isSubscribed ? "video-ui" : "video-ui blurred"}
-    >
-      {!contentState.isSubscribed && (
-        <div className="ModalSoon">
-          {/* 👇 Embed the video here */}
-          <video
-            src={chrome.runtime.getURL("assets/videos/pro.mp4")}
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{
-              width: "100%",
-              borderRadius: "6px",
-              marginBottom: "20px",
-            }}
-          />
-          <div className="ModalSoonTitle">
-            {chrome.i18n.getMessage("shareModalSandboxTitle")}
-          </div>
-
-          <div className="ModalSoonDescription">
-            {chrome.i18n.getMessage("shareModalSandboxDescription")}
-          </div>
-
-          <div
-            className="ModalSoonButton"
-            onClick={() => {
-              chrome.runtime.sendMessage({ type: "pricing" });
-            }}
-          >
-            {chrome.i18n.getMessage("shareModalSandboxButton")}
-          </div>
-
-          <button
-            onClick={() => {
-              chrome.runtime.sendMessage({ type: "handle-login" });
-            }}
-            className="ModalSoonSecondary"
-            style={{
-              marginTop: 16,
-              width: "100%",
-              background: "transparent",
-              border: "none",
-              color: "#6B7280",
-              fontSize: 13,
-              textAlign: "center",
-              cursor: "pointer",
-            }}
-          >
-            {chrome.i18n.getMessage("shareModalSandboxLogin")}
-          </button>
-        </div>
-      )}
+    <div className="video-ui">
       <Tabs.Root className="TabsRoot" defaultValue="personal">
         <Tabs.List className="TabsList" aria-label="Manage your account">
           <div className="TabsTriggerWrap">

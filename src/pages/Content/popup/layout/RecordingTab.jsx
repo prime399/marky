@@ -215,25 +215,14 @@ const RecordingTab = (props) => {
           <div className="TabsTriggerSpacer"></div>
           <div className="TabsTrigger">
             <TooltipWrap
-              content={
-                !contentState.isLoggedIn
-                  ? "Record multiple scenes with Screenity Pro"
-                  : "Record scenes one after another"
-              }
+              content={"Record scenes one after another"}
               side={"bottom"}
             >
               <div
                 className="TabsTriggerLabel"
                 style={{
-                  opacity: contentState.isLoggedIn ? 1 : 0.5,
-
-                  cursor: contentState.isLoggedIn ? "pointer" : "not-allowed",
-                }}
-                onClick={() => {
-                  // If not logged in, show the modal instead of toggling
-                  if (!contentState.isLoggedIn) {
-                    setShowModalSoon(true);
-                  }
+                  opacity: 1,
+                  cursor: "pointer",
                 }}
               >
                 <div
@@ -241,7 +230,7 @@ const RecordingTab = (props) => {
                   style={{
                     width: "33px",
                     position: "relative", // For the badge positioning
-                    pointerEvents: contentState.isLoggedIn ? "auto" : "none",
+                    pointerEvents: "auto",
                   }}
                 >
                   {contentState.multiMode &&

@@ -674,8 +674,14 @@ export const setupHandlers = () => {
         .get("screenityToken")
         .then((r) => r.screenityToken);
 
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+        sort,
+        filter,
+      });
       const res = await fetch(
-        `${API_BASE}/videos?page=${page}&pageSize=${pageSize}&sort=${sort}&filter=${filter}`,
+        `${API_BASE}/videos?${params}`,
         {
           method: "GET",
           headers: {

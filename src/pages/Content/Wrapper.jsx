@@ -17,6 +17,7 @@ import root from "react-shadow";
 // Import styles raw to add into the ShadowDOM
 import styles from "!raw-loader!./styles/app.css";
 
+import * as Tooltip from "@radix-ui/react-tooltip";
 import ZoomContainer from "./utils/ZoomContainer";
 import BlurTool from "./utils/BlurTool";
 import CursorModes from "./utils/CursorModes";
@@ -226,6 +227,7 @@ const Wrapper = () => {
   ]);
 
   return (
+    <Tooltip.Provider delayDuration={700}>
     <div ref={parentRef}>
       {contentState.showExtension && (
         <iframe
@@ -353,6 +355,7 @@ const Wrapper = () => {
         <div></div>
       )}
     </div>
+    </Tooltip.Provider>
   );
 };
 

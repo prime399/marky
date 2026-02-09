@@ -943,7 +943,7 @@ const Recorder = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(onMessage);
     };
-  }, []);
+  }, [onMessage]);
 
   return <div></div>;
 };

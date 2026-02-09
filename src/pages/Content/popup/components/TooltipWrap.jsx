@@ -24,39 +24,37 @@ const TooltipWrap = (props) => {
       {props.content == "" ? (
         <div>{props.children}</div>
       ) : (
-        <Tooltip.Provider>
-          <Tooltip.Root delayDuration={700} defaultOpen={false}>
-            <Tooltip.Trigger asChild>{props.children}</Tooltip.Trigger>
-            <Tooltip.Portal
-              container={
-                document.getElementsByClassName("screenity-shadow-dom")[0]
+        <Tooltip.Root delayDuration={700} defaultOpen={false}>
+          <Tooltip.Trigger asChild>{props.children}</Tooltip.Trigger>
+          <Tooltip.Portal
+            container={
+              document.getElementsByClassName("screenity-shadow-dom")[0]
+            }
+          >
+            <Tooltip.Content
+              className={
+                "TooltipContent" +
+                " " +
+                props.override +
+                " " +
+                props.hide +
+                " " +
+                override
               }
+              style={{
+                display: override === "override" ? "none" : "block",
+                whiteSpace: "pre-line",
+                maxWidth: "240px",
+                lineHeight: "1.4",
+                ...props.tooltipStyle,
+              }}
+              side={props.side || "left"}
+              sideOffset={props.sideOffset || 8}
             >
-              <Tooltip.Content
-                className={
-                  "TooltipContent" +
-                  " " +
-                  props.override +
-                  " " +
-                  props.hide +
-                  " " +
-                  override
-                }
-                style={{
-                  display: override === "override" ? "none" : "block",
-                  whiteSpace: "pre-line",
-                  maxWidth: "240px",
-                  lineHeight: "1.4",
-                  ...props.tooltipStyle,
-                }}
-                side={props.side || "left"}
-                sideOffset={props.sideOffset || 8}
-              >
-                {props.content}
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </Tooltip.Provider>
+              {props.content}
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
       )}
     </div>
   );

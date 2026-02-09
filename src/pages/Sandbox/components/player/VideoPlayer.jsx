@@ -137,12 +137,13 @@ const VideoPlayer = (props) => {
         ) {
           bannerRef.current = document.createElement("div");
           bannerRef.current.classList.add("videoBanner");
-          bannerRef.current.innerHTML =
-            "<img src='" +
-            chrome.runtime.getURL("assets/editor/icons/alert-white.svg") +
-            "'/> <span>" +
-            chrome.i18n.getMessage("processingBannerEditor") +
-            "</span>";
+          const img = document.createElement("img");
+          img.src = chrome.runtime.getURL("assets/editor/icons/alert-white.svg");
+          const span = document.createElement("span");
+          span.textContent = chrome.i18n.getMessage("processingBannerEditor");
+          bannerRef.current.appendChild(img);
+          bannerRef.current.appendChild(document.createTextNode(" "));
+          bannerRef.current.appendChild(span);
 
           document.querySelector(".plyr--video").appendChild(bannerRef.current);
         }

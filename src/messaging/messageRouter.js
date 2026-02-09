@@ -33,6 +33,8 @@ export const messageDispatcher = (message, sender, sendResponse) => {
     } catch (err) {
       sendResponse({ error: err.message });
     }
+  } else {
+    sendResponse({ error: `Unknown message type: ${message.type}` });
   }
 };
 

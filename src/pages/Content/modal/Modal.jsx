@@ -74,7 +74,7 @@ const Modal = (props) => {
   return (
     <AlertDialog.Root
       open={showModal}
-      modal={false}
+      modal={true}
       onOpenChange={(open) => {
         setShowModal(open);
       }}
@@ -84,7 +84,7 @@ const Modal = (props) => {
           ".container"
         )}
       >
-        <div className="AlertDialogOverlay"></div>
+        <AlertDialog.Overlay className="AlertDialogOverlay" />
         <AlertDialog.Content
           className="AlertDialogContent"
           aria-labelledby="modal-title"
@@ -122,6 +122,7 @@ const Modal = (props) => {
           {image && (
             <img
               src={image}
+              alt=""
               style={{
                 width: "100%",
                 marginBottom: 15,

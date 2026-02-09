@@ -476,6 +476,8 @@ const ToolbarWrap = () => {
               className={`popup-controls toolbar-controls ${
                 hovering ? "open" : ""
               }`}
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 // Show the toast first
                 if (contentState.openToast) {
@@ -513,6 +515,40 @@ const ToolbarWrap = () => {
                     hideUI: true,
                   });
                 }, 3000); // match your toast duration
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (contentState.openToast) {
+                    contentState.openToast(
+                      chrome.i18n.getMessage("reopenToolbarToast"),
+                      () => {},
+                    );
+                  }
+                  setVisuallyHidden(true);
+                  setContentState((prev) => ({
+                    ...prev,
+                    drawingMode: false,
+                    blurMode: false,
+                  }));
+                  setTimeout(() => {
+                    setContentState((prev) => ({
+                      ...prev,
+                      hideToolbar: true,
+                      drawingMode: false,
+                      blurMode: false,
+                      hideUIAlerts: false,
+                      toolbarHover: false,
+                      hideUI: true,
+                    }));
+                    chrome.storage.local.set({
+                      hideToolbar: true,
+                      hideUIAlerts: false,
+                      toolbarHover: false,
+                      hideUI: true,
+                    });
+                  }, 3000);
+                }
               }}
             >
               <div className="popup-control popup-close">

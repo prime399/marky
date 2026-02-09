@@ -198,7 +198,7 @@ const SettingsMenu = (props) => {
               <DropdownMenu.SubTrigger className="DropdownMenuItem">
                 {chrome.i18n.getMessage("resizeWindowLabel")}
                 <div className="ItemIndicatorArrow">
-                  <img src={DropdownGroup} />
+                  <img src={DropdownGroup} alt="" />
                 </div>
               </DropdownMenu.SubTrigger>
               <DropdownMenu.Portal>
@@ -354,7 +354,7 @@ const SettingsMenu = (props) => {
                   contentState.qualityValue +
                   ")"}
                 <div className="ItemIndicatorArrow">
-                  <img src={DropdownGroup} />
+                  <img src={DropdownGroup} alt="" />
                 </div>
               </DropdownMenu.SubTrigger>
               <DropdownMenu.Portal>
@@ -389,7 +389,7 @@ const SettingsMenu = (props) => {
                       >
                         4k
                         <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                          <img src={CheckWhiteIcon} />
+                          <img src={CheckWhiteIcon} alt="" />
                         </DropdownMenu.ItemIndicator>
                       </DropdownMenu.RadioItem>
                     </TooltipWrap>
@@ -407,7 +407,7 @@ const SettingsMenu = (props) => {
                       >
                         1080p
                         <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                          <img src={CheckWhiteIcon} />
+                          <img src={CheckWhiteIcon} alt="" />
                         </DropdownMenu.ItemIndicator>
                       </DropdownMenu.RadioItem>
                     </TooltipWrap>
@@ -425,7 +425,7 @@ const SettingsMenu = (props) => {
                       >
                         720p
                         <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                          <img src={CheckWhiteIcon} />
+                          <img src={CheckWhiteIcon} alt="" />
                         </DropdownMenu.ItemIndicator>
                       </DropdownMenu.RadioItem>
                     </TooltipWrap>
@@ -435,7 +435,7 @@ const SettingsMenu = (props) => {
                     >
                       480p
                       <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                        <img src={CheckWhiteIcon} />
+                        <img src={CheckWhiteIcon} alt="" />
                       </DropdownMenu.ItemIndicator>
                     </DropdownMenu.RadioItem>
                     <DropdownMenu.RadioItem
@@ -444,7 +444,7 @@ const SettingsMenu = (props) => {
                     >
                       360p
                       <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                        <img src={CheckWhiteIcon} />
+                        <img src={CheckWhiteIcon} alt="" />
                       </DropdownMenu.ItemIndicator>
                     </DropdownMenu.RadioItem>
                     <DropdownMenu.RadioItem
@@ -453,7 +453,7 @@ const SettingsMenu = (props) => {
                     >
                       240p
                       <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                        <img src={CheckWhiteIcon} />
+                        <img src={CheckWhiteIcon} alt="" />
                       </DropdownMenu.ItemIndicator>
                     </DropdownMenu.RadioItem>
                   </DropdownMenu.RadioGroup>
@@ -504,7 +504,7 @@ const SettingsMenu = (props) => {
                   >
                     60
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                   <DropdownMenu.RadioItem
@@ -513,7 +513,7 @@ const SettingsMenu = (props) => {
                   >
                     30
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                   <DropdownMenu.RadioItem
@@ -522,7 +522,7 @@ const SettingsMenu = (props) => {
                   >
                     24
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                   <DropdownMenu.RadioItem
@@ -531,7 +531,7 @@ const SettingsMenu = (props) => {
                   >
                     10
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                   <DropdownMenu.RadioItem
@@ -540,7 +540,7 @@ const SettingsMenu = (props) => {
                   >
                     5
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                   <DropdownMenu.RadioItem
@@ -548,11 +548,11 @@ const SettingsMenu = (props) => {
                     value="1"
                   >
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                     1
                     <DropdownMenu.ItemIndicator className="ScreenityItemIndicator">
-                      <img src={CheckWhiteIcon} />
+                      <img src={CheckWhiteIcon} alt="" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                 </DropdownMenu.RadioGroup>
@@ -578,7 +578,7 @@ const SettingsMenu = (props) => {
           >
             {chrome.i18n.getMessage("systemAudioLabel")}
             <DropdownMenu.ItemIndicator className="ItemIndicator">
-              <img src={CheckWhiteIcon} />
+              <img src={CheckWhiteIcon} alt="" />
             </DropdownMenu.ItemIndicator>
           </DropdownMenu.CheckboxItem>
           {!oldChrome && (
@@ -605,7 +605,7 @@ const SettingsMenu = (props) => {
               >
                 {chrome.i18n.getMessage("backupsToggle")}
                 <DropdownMenu.ItemIndicator className="ItemIndicator">
-                  <img src={CheckWhiteIcon} />
+                  <img src={CheckWhiteIcon} alt="" />
                 </DropdownMenu.ItemIndicator>
               </DropdownMenu.CheckboxItem>
             )}

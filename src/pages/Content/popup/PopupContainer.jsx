@@ -428,20 +428,39 @@ const PopupContainer = (props) => {
               setOpen={setOpen}
             />
             <div
+              role="button"
+              tabIndex={0}
               style={{ marginBottom: "-4px", cursor: "pointer" }}
               onClick={() => {
                 window.open(URL, "_blank");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  window.open(URL, "_blank");
+                }
               }}
             >
               <HelpIconPopup />
             </div>
             <div
               className="popup-control popup-close"
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 setContentState((prevContentState) => ({
                   ...prevContentState,
                   showExtension: false,
                 }));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setContentState((prevContentState) => ({
+                    ...prevContentState,
+                    showExtension: false,
+                  }));
+                }
               }}
             >
               <CloseIconPopup />
@@ -459,6 +478,7 @@ const PopupContainer = (props) => {
             ) : (
               <img
                 src={badge}
+                alt=""
                 crossOrigin="anonymous"
                 style={{
                   width:
@@ -552,6 +572,7 @@ const PopupContainer = (props) => {
                         src={
                           tab === "record" ? RecordTabActive : RecordTabInactive
                         }
+                        alt=""
                       />
                     </div>
                     {chrome.i18n.getMessage("recordTab")}
@@ -569,6 +590,7 @@ const PopupContainer = (props) => {
                             ? VideoTabActive
                             : VideoTabInactive
                         }
+                        alt=""
                       />
                     </div>
                     {chrome.i18n.getMessage("videosTab")}

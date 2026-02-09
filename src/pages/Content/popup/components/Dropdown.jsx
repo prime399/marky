@@ -283,6 +283,7 @@ const Dropdown = (props) => {
                     ? CameraOffIcon
                     : CameraOnIcon
                 }
+                alt=""
               />
             )}
             {props.type == "mic" && (
@@ -293,6 +294,7 @@ const Dropdown = (props) => {
                     ? MicOffIcon
                     : MicOnIcon
                 }
+                alt=""
               />
             )}
           </div>
@@ -321,7 +323,7 @@ const Dropdown = (props) => {
             </div>
           )}
         <Select.Icon className="SelectIconDrop">
-          <img src={DropdownIcon} />
+          <img src={DropdownIcon} alt="" />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal
@@ -373,7 +375,7 @@ const SelectItem = React.forwardRef(
       <Select.Item className="SelectItem" {...props} ref={forwardedRef}>
         <Select.ItemText>{children}</Select.ItemText>
         <Select.ItemIndicator className="SelectItemIndicator">
-          <img src={CheckWhiteIcon} />
+          <img src={CheckWhiteIcon} alt="" />
         </Select.ItemIndicator>
       </Select.Item>
     );

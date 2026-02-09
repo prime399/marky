@@ -184,7 +184,7 @@ const ContentState = (props) => {
           {
             type: "restart-recording",
           },
-          new URL(chrome.runtime.getURL("")).origin,
+          new globalThis.URL(chrome.runtime.getURL("")).origin,
         );
       }
       if (contentStateRef.current.alarm) {
@@ -548,7 +548,7 @@ const ContentState = (props) => {
           width: contentStateRef.current.regionWidth,
           height: contentStateRef.current.regionHeight,
         },
-        new URL(chrome.runtime.getURL("")).origin,
+        new globalThis.URL(chrome.runtime.getURL("")).origin,
       );
     }
 
@@ -783,7 +783,7 @@ const ContentState = (props) => {
   }, []);
 
   useEffect(() => {
-    const extensionOrigin = new URL(chrome.runtime.getURL("")).origin;
+    const extensionOrigin = new globalThis.URL(chrome.runtime.getURL("")).origin;
     const handleMessage = (event) => {
       if (event.origin !== extensionOrigin) return;
       if (event.data.type === "screenity-permissions") {

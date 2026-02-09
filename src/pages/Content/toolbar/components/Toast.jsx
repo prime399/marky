@@ -34,7 +34,7 @@ const Toast = () => {
     setOpen(true);
     setTrigger(() => (typeof action === "function" ? action : noop));
     setToastDuration(durationMs);
-  });
+  }, []);
 
   useEffect(() => {
     setContentState((prevContentState) => ({

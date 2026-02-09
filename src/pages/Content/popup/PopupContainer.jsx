@@ -537,7 +537,7 @@ const PopupContainer = (props) => {
                 <Tabs.List
                   className="TabsList tl"
                   data-value={tab}
-                  aria-label="Manage your account"
+                  aria-label="Recording and video tabs"
                   tabIndex={0}
                 >
                   <div className="pill-anim" ref={pillRef}></div>

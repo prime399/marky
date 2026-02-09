@@ -43,8 +43,7 @@
         "playground.html",
         "editorwebcodecs.html",
         "editorviewer.html",
-        "download.html",
-        "*"
+        "download.html"
       ],
       "matches": ["<all_urls>"]
     }

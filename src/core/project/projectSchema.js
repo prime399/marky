@@ -14,15 +14,13 @@ const createDefaultProject = ({
   instantMode = false,
   now = Date.now(),
 } = {}) => ({
-  id: id || `local-${now}`,
+  id: id || `local-${typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : now + "-" + Math.random().toString(36).slice(2, 10)}`,
   schemaVersion: PROJECT_SCHEMA_VERSION,
   title,
   createdAt: now,
   updatedAt: now,
   syncStatus: SYNC_STATUS.LOCAL_ONLY,
   syncError: null,
-  scenes: {},
-  sceneOrder: [],
   settings: {
     instantMode: Boolean(instantMode),
   },
@@ -97,25 +95,48 @@ const migrateProject = (project) => {
   const schemaVersion = Number(project.schemaVersion || 0);
 
   if (schemaVersion >= PROJECT_SCHEMA_VERSION) {
-    return {
+    const result = {
       ...project,
       syncStatus: project.syncStatus || SYNC_STATUS.LOCAL_ONLY,
       syncError: project.syncError || null,
     };
+
+    // Normalize: ensure scenes/sceneOrder live only in data
+    if (result.scenes || result.sceneOrder) {
+      result.data = {
+        ...(result.data || {}),
+        scenes: result.scenes || result.data?.scenes || {},
+        sceneOrder: result.sceneOrder || result.data?.sceneOrder || [],
+      };
+      delete result.scenes;
+      delete result.sceneOrder;
+    }
+
+    return result;
   }
+
+  const scenes = project.scenes || project.data?.scenes || {};
+  const sceneOrder = project.sceneOrder || project.data?.sceneOrder || [];
 
   const migrated = {
     ...project,
     schemaVersion: PROJECT_SCHEMA_VERSION,
     syncStatus: project.syncStatus || SYNC_STATUS.LOCAL_ONLY,
     syncError: project.syncError || null,
-    scenes: project.scenes || project.data?.scenes || {},
-    sceneOrder: project.sceneOrder || project.data?.sceneOrder || [],
     settings: project.settings || {
       instantMode: Boolean(project.instantMode || project.data?.instantMode),
     },
     updatedAt: project.updatedAt || Date.now(),
+    data: {
+      ...(project.data || {}),
+      scenes,
+      sceneOrder,
+    },
   };
+
+  // Remove legacy root-level scene fields
+  delete migrated.scenes;
+  delete migrated.sceneOrder;
 
   return migrated;
 };

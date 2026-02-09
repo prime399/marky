@@ -759,7 +759,7 @@ const ContentState = (props) => {
     return () => {
       chrome.runtime.onMessage.removeListener(messageListener);
     };
-  }, []);
+  }, [onChromeMessage]);
 
   const onMessage = async (event) => {
     if (event.data.type === "updated-blob") {
@@ -960,7 +960,8 @@ const ContentState = (props) => {
   }, [onMessage]);
 
   const sendMessage = (message) => {
-    window.parent.postMessage(message, "*");
+    const extensionOrigin = new URL(chrome.runtime.getURL("")).origin;
+    window.parent.postMessage(message, extensionOrigin);
   };
 
   const getBlob = async () => {

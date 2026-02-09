@@ -128,10 +128,29 @@ const fileExtensions = [
 ];
 
 const secretsPath = path.join(__dirname, `secrets.${env.NODE_ENV}.js`);
-const alias = { "react-dom": "@hot-loader/react-dom" };
+
+const resolveAlias = {
+  react: path.resolve("./node_modules/react"),
+  "react-dom": path.resolve("./node_modules/react-dom"),
+  "react/jsx-runtime": path.resolve("./node_modules/react/jsx-runtime"),
+};
 
 if (fileSystem.existsSync(secretsPath)) {
-  alias["secrets"] = secretsPath;
+  resolveAlias["secrets"] = secretsPath;
+}
+
+// Validate required SCREENITY_* env vars
+const requiredEnvVars = [
+  "SCREENITY_APP_BASE",
+  "SCREENITY_WEBSITE_BASE",
+  "SCREENITY_API_BASE_URL",
+  "SCREENITY_ENABLE_CLOUD_FEATURES",
+];
+const missingEnvVars = requiredEnvVars.filter((v) => !process.env[v]);
+if (missingEnvVars.length > 0) {
+  console.warn(
+    `Warning: Missing environment variables: ${missingEnvVars.join(", ")}. See .env.example for required values.`
+  );
 }
 
 const config = {
@@ -184,11 +203,7 @@ const config = {
     ],
   },
   resolve: {
-    alias: {
-      react: path.resolve("./node_modules/react"),
-      "react-dom": path.resolve("./node_modules/react-dom"),
-      "react/jsx-runtime": path.resolve("./node_modules/react/jsx-runtime"),
-    },
+    alias: resolveAlias,
     extensions: fileExtensions
       .map((extension) => `.${extension}`)
       .concat([".js", ".jsx", ".ts", ".tsx", ".css"]),

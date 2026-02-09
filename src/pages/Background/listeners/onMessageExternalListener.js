@@ -9,6 +9,8 @@ export const onMessageExternalListener = () => {
 
   chrome.runtime.onMessageExternal.addListener(
     async (message, sender, sendResponse) => {
+      if (sender.origin !== "https://app.screenity.io") return;
+
       if (message.type === "AUTH_SUCCESS" && message.token) {
         chrome.storage.local.set({
           screenityToken: message.token,

@@ -55,11 +55,15 @@ const createLocalProjectRepository = ({ storage } = {}) => {
 
     async saveProject(project) {
       const now = Date.now();
-      const normalized = migrateProject({
-        ...createDefaultProject(),
-        ...project,
-        updatedAt: now,
-      });
+      const defaults = createDefaultProject();
+      const merged = { ...defaults };
+      for (const key of Object.keys(project)) {
+        if (project[key] !== undefined) {
+          merged[key] = project[key];
+        }
+      }
+      merged.updatedAt = now;
+      const normalized = migrateProject(merged);
       if (!normalized.syncStatus) {
         normalized.syncStatus = SYNC_STATUS.LOCAL_ONLY;
       }

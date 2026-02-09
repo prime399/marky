@@ -21,7 +21,7 @@ test("createDefaultProject returns Project v1 with local sync state", () => {
   assert.equal(project.syncStatus, SYNC_STATUS.LOCAL_ONLY);
   assert.equal(project.title, "My Project");
   assert.equal(project.settings.instantMode, true);
-  assert.deepEqual(project.sceneOrder, []);
+  assert.deepEqual(project.data.sceneOrder, []);
 });
 
 test("migrateProject upgrades legacy payloads to v1", () => {
@@ -38,6 +38,6 @@ test("migrateProject upgrades legacy payloads to v1", () => {
   assert.equal(migrated.schemaVersion, PROJECT_SCHEMA_VERSION);
   assert.equal(migrated.syncStatus, SYNC_STATUS.LOCAL_ONLY);
   assert.equal(migrated.settings.instantMode, true);
-  assert.deepEqual(migrated.sceneOrder, ["scene-1"]);
-  assert.deepEqual(migrated.scenes, { "scene-1": { id: "scene-1" } });
+  assert.deepEqual(migrated.data.sceneOrder, ["scene-1"]);
+  assert.deepEqual(migrated.data.scenes, { "scene-1": { id: "scene-1" } });
 });

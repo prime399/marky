@@ -184,7 +184,7 @@ const ContentState = (props) => {
           {
             type: "restart-recording",
           },
-          "*",
+          new URL(chrome.runtime.getURL("")).origin,
         );
       }
       if (contentStateRef.current.alarm) {
@@ -244,7 +244,6 @@ const ContentState = (props) => {
       timer: 0,
       preparingRecording: false,
       drawingMode: false,
-      blurMode: false,
       toolbarMode: "",
       cursorMode: "none",
       cursorEffects: [],
@@ -263,7 +262,7 @@ const ContentState = (props) => {
         }, 200);
       }
     });
-  });
+  }, []);
 
   const pauseRecording = useCallback((dismiss) => {
     if (contentStateRef.current?.paused) return;
@@ -281,7 +280,7 @@ const ContentState = (props) => {
         );
       }
     }, 100);
-  });
+  }, []);
 
   const resumeRecording = useCallback(() => {
     if (!contentStateRef.current?.paused) return;
@@ -291,7 +290,7 @@ const ContentState = (props) => {
       ...prev,
       paused: false,
     }));
-  });
+  }, []);
 
   const dismissRecording = useCallback(() => {
     suppressStopBeepRef.current = true;
@@ -318,7 +317,7 @@ const ContentState = (props) => {
       element.classList.remove("screenity-blur");
     });
     setTimer(0);
-  });
+  }, []);
 
   const checkChromeCapturePermissions = useCallback(async () => {
     const permissions = ["desktopCapture", "alarms", "offscreen"];
@@ -549,7 +548,7 @@ const ContentState = (props) => {
           width: contentStateRef.current.regionWidth,
           height: contentStateRef.current.regionHeight,
         },
-        "*",
+        new URL(chrome.runtime.getURL("")).origin,
       );
     }
 
@@ -618,20 +617,20 @@ const ContentState = (props) => {
   }, [contentState, contentStateRef]);
 
   const tryRestartRecording = useCallback(() => {
-    contentState.pauseRecording();
-    contentState.openModal(
+    contentStateRef.current.pauseRecording();
+    contentStateRef.current.openModal(
       chrome.i18n.getMessage("restartModalTitle"),
       chrome.i18n.getMessage("restartModalDescription"),
       chrome.i18n.getMessage("restartModalRestart"),
       chrome.i18n.getMessage("restartModalResume"),
       () => {
-        contentState.restartRecording();
+        contentStateRef.current.restartRecording();
       },
       () => {
-        contentState.resumeRecording();
+        contentStateRef.current.resumeRecording();
       },
     );
-  });
+  }, []);
 
   const tryDismissRecording = useCallback(() => {
     if (contentStateRef.current.askDismiss) {
@@ -781,10 +780,12 @@ const ContentState = (props) => {
       askForPermissions: false,
     }));
     chrome.storage.local.set({ askForPermissions: false });
-  });
+  }, []);
 
   useEffect(() => {
+    const extensionOrigin = new URL(chrome.runtime.getURL("")).origin;
     const handleMessage = (event) => {
+      if (event.origin !== extensionOrigin) return;
       if (event.data.type === "screenity-permissions") {
         handleDevicePermissions(event.data);
       } else if (event.data.type === "screenity-permissions-loaded") {
@@ -884,7 +885,6 @@ const ContentState = (props) => {
     cameraPermission: true,
     microphonePermission: true,
     askMicrophone: true,
-    recordingShortcut: "⌥⇧W",
     recordingShortcut: "⌥⇧D",
     toggleDrawingModeShortcut: "",
     toggleBlurModeShortcut: "",

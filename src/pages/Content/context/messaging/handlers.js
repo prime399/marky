@@ -455,7 +455,7 @@ export const setupHandlers = () => {
   });
 
   registerMessage("get-project-info", (message) => {
-    window.postMessage({ source: "get-project-info" }, "*");
+    window.postMessage({ source: "get-project-info" }, window.location.origin);
   });
   registerMessage("check-auth", async (message) => {
     if (!CLOUD_FEATURES_ENABLED) {
@@ -508,7 +508,7 @@ export const setupHandlers = () => {
   registerMessage("update-project-loading", (message, sender) => {
     window.postMessage(
       { source: "update-project-loading", multiMode: message.multiMode },
-      "*",
+      window.location.origin,
     );
 
     if (!message.multiMode) {
@@ -529,7 +529,7 @@ export const setupHandlers = () => {
         newProject: message.newProject,
         sceneId: message.sceneId,
       },
-      "*",
+      window.location.origin,
     );
   });
   registerMessage("clear-project-recording", (message) => {

@@ -196,13 +196,15 @@ const Recorder = () => {
       {
         type: "screenity-region-capture-loaded",
       },
-      "*"
+      new URL(chrome.runtime.getURL("")).origin
     );
   }, []);
 
   // Receive post message from parent (this is an iframe)
   useEffect(() => {
+    const extensionOrigin = new URL(chrome.runtime.getURL("")).origin;
     const onMessage = (event) => {
+      if (event.origin !== extensionOrigin) return;
       if (event.data.type === "crop-target") {
         target.current = event.data.target;
         regionRef.current = true;
@@ -210,9 +212,7 @@ const Recorder = () => {
         restartRecording();
       }
     };
-    window.addEventListener("message", (event) => {
-      onMessage(event);
-    });
+    window.addEventListener("message", onMessage);
 
     return () => {
       window.removeEventListener("message", onMessage);

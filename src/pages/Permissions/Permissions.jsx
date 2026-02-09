@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 
 const Recorder = () => {
+  const extensionOrigin = new URL(chrome.runtime.getURL("")).origin;
+
   useEffect(() => {
     window.parent.postMessage(
       {
         type: "screenity-permissions-loaded",
       },
-      "*"
+      extensionOrigin
     );
   }, []);
 
@@ -61,7 +63,7 @@ const Recorder = () => {
             success: false,
             error: err.name,
           },
-          "*"
+          extensionOrigin
         );
         // sendResponse({ success: false, error: err.name });
       }
@@ -132,7 +134,7 @@ const Recorder = () => {
           cameraPermission: camGranted,
           microphonePermission: micGranted,
         },
-        "*"
+        extensionOrigin
       );
 
       //sendResponse({ success: true, audioinput, audiooutput, videoinput });
@@ -149,7 +151,7 @@ const Recorder = () => {
           success: false,
           error: err.name,
         },
-        "*"
+        extensionOrigin
       );
       //sendResponse({ success: false, error: err.name });
     }
@@ -163,7 +165,9 @@ const Recorder = () => {
 
   // Post message listener
   useEffect(() => {
+    const extensionOrigin = new URL(chrome.runtime.getURL("")).origin;
     window.addEventListener("message", (event) => {
+      if (event.origin !== extensionOrigin) return;
       onMessage(event.data);
     });
   }, []);

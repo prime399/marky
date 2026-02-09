@@ -9,7 +9,10 @@ const useSandboxStore = create((set) => ({
   updateState: (updaterOrState) =>
     set((store) => {
       if (typeof store.updater === "function") {
-        store.updater(updaterOrState);
+        const result = store.updater(updaterOrState);
+        if (result && typeof result === "object") {
+          return { state: result };
+        }
         return {};
       }
       return {

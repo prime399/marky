@@ -2,48 +2,65 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 import { Rnd } from "react-rnd";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import useContentStore from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const ResizableBox = () => {
   const regionRef = useRef(null);
   const parentRef = useRef(null);
   const cropRef = useRef(null);
   const recordingRef = useRef(null);
-  const contentState = useContentState();
+  const { recording, recordingType, customRegion, regionWidth, regionHeight, regionX, regionY, fromRegion, drawingMode, blurMode } =
+    useContentStateSelector(
+      useShallow((s) => ({
+        recording: s.recording,
+        recordingType: s.recordingType,
+        customRegion: s.customRegion,
+        regionWidth: s.regionWidth,
+        regionHeight: s.regionHeight,
+        regionX: s.regionX,
+        regionY: s.regionY,
+        fromRegion: s.fromRegion,
+        drawingMode: s.drawingMode,
+        blurMode: s.blurMode,
+      }))
+    );
   const setContentState = useContentSetter();
 
   useEffect(() => {
-    recordingRef.current = contentState.recording;
-  }, [contentState.recording]);
+    recordingRef.current = recording;
+  }, [recording]);
 
   // Check for contentState.regionDimensions to update the Rnd component width and height
   useEffect(() => {
-    if (contentState.recordingType != "region") return;
-    if (!contentState.customRegion) return;
+    if (recordingType != "region") return;
+    if (!customRegion) return;
     if (regionRef.current === null) return;
     if (
-      contentState.regionWidth === 0 ||
-      contentState.regionWidth === undefined
+      regionWidth === 0 ||
+      regionWidth === undefined
     )
       return;
     if (
-      contentState.regionHeight === 0 ||
-      contentState.regionHeight === undefined
+      regionHeight === 0 ||
+      regionHeight === undefined
     )
       return;
-    if (contentState.regionX === undefined) return;
-    if (contentState.regionY === undefined) return;
-    if (contentState.fromRegion) return;
+    if (regionX === undefined) return;
+    if (regionY === undefined) return;
+    if (fromRegion) return;
 
     // Get parent element dimensions
     const parentWidth = parentRef.current.offsetWidth;
     const parentHeight = parentRef.current.offsetHeight;
 
     // Calculate maximum size that fits within parent element
-    const maxWidth = parentWidth - contentState.regionX;
-    const maxHeight = parentHeight - contentState.regionY;
-    const newWidth = Math.min(contentState.regionWidth, maxWidth);
-    const newHeight = Math.min(contentState.regionHeight, maxHeight);
+    const maxWidth = parentWidth - regionX;
+    const maxHeight = parentHeight - regionY;
+    const newWidth = Math.min(regionWidth, maxWidth);
+    const newHeight = Math.min(regionHeight, maxHeight);
 
     // Update content state with new size
     setContentState((prevContentState) => ({
@@ -61,17 +78,17 @@ const ResizableBox = () => {
     regionRef.current.updateSize({
       width: newWidth,
       height: newHeight,
-      x: contentState.regionX,
-      y: contentState.regionY,
+      x: regionX,
+      y: regionY,
     });
     setCropTarget();
   }, [
-    contentState.recordingType,
-    contentState.customRegion,
-    contentState.regionWidth,
-    contentState.regionHeight,
-    contentState.regionX,
-    contentState.regionY,
+    recordingType,
+    customRegion,
+    regionWidth,
+    regionHeight,
+    regionX,
+    regionY,
   ]);
 
   const setCropTarget = async () => {
@@ -151,8 +168,8 @@ const ResizableBox = () => {
         zIndex: -1,
         pointerEvents:
           recordingRef.current ||
-          contentState.drawingMode ||
-          contentState.blurMode
+          drawingMode ||
+          blurMode
             ? "none"
             : "auto",
       }}
@@ -182,8 +199,8 @@ const ResizableBox = () => {
           zIndex: 1,
           pointerEvents:
             recordingRef.current ||
-            contentState.drawingMode ||
-            contentState.blurMode
+            drawingMode ||
+            blurMode
               ? "none"
               : "auto",
         }}
@@ -197,16 +214,16 @@ const ResizableBox = () => {
           zIndex: 2,
           pointerEvents:
             recordingRef.current ||
-            contentState.drawingMode ||
-            contentState.blurMode
+            drawingMode ||
+            blurMode
               ? "none"
               : "auto",
         }}
         default={{
-          x: contentState.regionX,
-          y: contentState.regionY,
-          width: contentState.regionWidth,
-          height: contentState.regionHeight,
+          x: regionX,
+          y: regionY,
+          width: regionWidth,
+          height: regionHeight,
         }}
         minWidth={50}
         minHeight={50}
@@ -225,14 +242,14 @@ const ResizableBox = () => {
         onResizeStop={handleResize}
         onDragStop={handleMove}
         disableDragging={
-          contentState.recording ||
-          contentState.drawingMode ||
-          contentState.blurMode
+          recording ||
+          drawingMode ||
+          blurMode
         } // Disable dragging when recording
         enableResizing={
-          !contentState.recording &&
-          !contentState.drawingMode &&
-          !contentState.blurMode
+          !recording &&
+          !drawingMode &&
+          !blurMode
         } // Disable resizing when recording
       >
         <div
@@ -249,8 +266,8 @@ const ResizableBox = () => {
             boxSizing: "border-box",
             pointerEvents:
               recordingRef.current ||
-              contentState.drawingMode ||
-              contentState.blurMode
+              drawingMode ||
+              blurMode
                 ? "none"
                 : "auto",
           }}

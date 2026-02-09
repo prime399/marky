@@ -36,7 +36,7 @@ import SettingsMenu from "./layout/SettingsMenu";
 import LoggedOut from "./layout/LoggedOut";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentSetter } from "../context/ContentState";
 import { useContentStateSelector } from "../state/contentStore";
 import { useShallow } from "zustand/react/shallow";
 

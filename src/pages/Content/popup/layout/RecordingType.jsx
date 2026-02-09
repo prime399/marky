@@ -4,7 +4,10 @@ import Dropdown from "../components/Dropdown";
 import Switch from "../components/Switch";
 import RegionDimensions from "../components/RegionDimensions";
 import Settings from "./Settings";
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
+
 import { CameraOffBlue, MicOffBlue } from "../../images/popup/images";
 import TooltipWrap from "../components/TooltipWrap";
 
@@ -16,7 +19,35 @@ const CLOUD_FEATURES_ENABLED =
   process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
 
 const RecordingType = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      alarmTime: s.alarmTime,
+      alarm: s.alarm,
+      recording: s.recording,
+      updateChrome: s.updateChrome,
+      recordingType: s.recordingType,
+      offline: s.offline,
+      cameraPermission: s.cameraPermission,
+      microphonePermission: s.microphonePermission,
+      cameraActive: s.cameraActive,
+      micActive: s.micActive,
+      defaultVideoInput: s.defaultVideoInput,
+      defaultAudioInput: s.defaultAudioInput,
+      pushToTalk: s.pushToTalk,
+      customRegion: s.customRegion,
+      backgroundEffectsActive: s.backgroundEffectsActive,
+      isLoggedIn: s.isLoggedIn,
+      isSubscribed: s.isSubscribed,
+      pendingRecording: s.pendingRecording,
+      multiMode: s.multiMode,
+      multiSceneCount: s.multiSceneCount,
+      recordingShortcut: s.recordingShortcut,
+      openModal: s.openModal,
+      startStreaming: s.startStreaming,
+      recordingToScene: s.recordingToScene,
+      instantMode: s.instantMode,
+    }))
+  );
   const setContentState = useContentSetter();
   const [cropActive, setCropActive] = useState(false);
   const [time, setTime] = useState(0);

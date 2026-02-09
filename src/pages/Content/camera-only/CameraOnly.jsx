@@ -2,17 +2,24 @@ import React, { useContext } from "react";
 
 import CameraWrap from "./layout/CameraWrap";
 
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const CameraOnly = (props) => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const { defaultVideoInput, cameraActive, recordingType } =
+    useContentStateSelector(
+      useShallow((s) => ({
+        defaultVideoInput: s.defaultVideoInput,
+        cameraActive: s.cameraActive,
+        recordingType: s.recordingType,
+      }))
+    );
 
   return (
     <div className="camera-page">
-      {contentState.defaultVideoInput != "none" &&
-        contentState.cameraActive &&
-        contentState.recordingType === "camera" && (
+      {defaultVideoInput != "none" &&
+        cameraActive &&
+        recordingType === "camera" && (
           <CameraWrap shadowRef={props.shadowRef} />
         )}
     </div>

@@ -11,10 +11,22 @@ import {
 } from "../../images/popup/images";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Dropdown = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      defaultVideoInput: s.defaultVideoInput,
+      defaultAudioInput: s.defaultAudioInput,
+      cameraActive: s.cameraActive,
+      micActive: s.micActive,
+      pushToTalk: s.pushToTalk,
+      videoInput: s.videoInput,
+      audioInput: s.audioInput,
+    }))
+  );
   const setContentState = useContentSetter();
   const [label, setLabel] = useState(chrome.i18n.getMessage("None"));
   const [open, setOpen] = useState(false);

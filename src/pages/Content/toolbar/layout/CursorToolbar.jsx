@@ -3,7 +3,9 @@ import * as Toolbar from "@radix-ui/react-toolbar";
 import TooltipWrap from "../components/TooltipWrap";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 // Icons
 import {
@@ -15,15 +17,20 @@ import {
 } from "../components/SVG";
 
 const CursorToolbar = (props) => {
-  const contentState = useContentState();
+  const { cursorMode, cursorEffects } = useContentStateSelector(
+    useShallow((s) => ({
+      cursorMode: s.cursorMode,
+      cursorEffects: s.cursorEffects,
+    }))
+  );
   const setContentState = useContentSetter();
-  const lastClickedEffectRef = useRef(contentState.cursorMode || "none");
+  const lastClickedEffectRef = useRef(cursorMode || "none");
 
   useEffect(() => {
-    if (contentState.cursorMode) {
-      lastClickedEffectRef.current = contentState.cursorMode;
+    if (cursorMode) {
+      lastClickedEffectRef.current = cursorMode;
     }
-  }, [contentState.cursorMode]);
+  }, [cursorMode]);
 
   const deriveCursorMode = (effects, fallback) => {
     if (effects.length === 0) return "none";
@@ -50,8 +57,8 @@ const CursorToolbar = (props) => {
       return;
     }
 
-    const currentEffects = Array.isArray(contentState.cursorEffects)
-      ? contentState.cursorEffects
+    const currentEffects = Array.isArray(cursorEffects)
+      ? cursorEffects
       : [];
 
     let nextEffects = [];
@@ -89,13 +96,13 @@ const CursorToolbar = (props) => {
     applyCursorSelection(effect, Boolean(event.shiftKey));
   };
 
-  const cursorEffects = Array.isArray(contentState.cursorEffects)
-    ? contentState.cursorEffects
+  const effectsList = Array.isArray(cursorEffects)
+    ? cursorEffects
     : [];
-  const isDefault = cursorEffects.length === 0;
-  const toggleValues = isDefault ? ["none"] : cursorEffects;
+  const isDefault = effectsList.length === 0;
+  const toggleValues = isDefault ? ["none"] : effectsList;
   const isEffectActive = (effect) =>
-    effect === "none" ? isDefault : cursorEffects.includes(effect);
+    effect === "none" ? isDefault : effectsList.includes(effect);
 
   return (
     <Toolbar.Root

@@ -3,16 +3,11 @@ import React from "react";
 // Icons
 import { Stroke1Icon, Stroke2Icon, Stroke3Icon } from "./SVG";
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
 
 // Components
 import TooltipWrap from "./TooltipWrap";
 
-import * as ToggleGroup from "@radix-ui/react-toggle-group";
-
 const StrokeWeight = (props) => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
 
   return (
     <React.Fragment>

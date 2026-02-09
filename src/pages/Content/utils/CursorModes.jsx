@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
 
 const CursorModes = () => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const cursorEffects = useContentStateSelector((s) => s.cursorEffects);
   const effectsRef = useRef(new Set());
 
   useEffect(() => {
-    const nextEffects = Array.isArray(contentState.cursorEffects)
-      ? contentState.cursorEffects
+    const nextEffects = Array.isArray(cursorEffects)
+      ? cursorEffects
       : [];
     effectsRef.current = new Set(nextEffects);
-  }, [contentState.cursorEffects]);
+  }, [cursorEffects]);
 
   const mouseDownHandler = (e) => {
     if (effectsRef.current.has("target")) {
@@ -111,7 +110,7 @@ const CursorModes = () => {
         style={{
           display: "block",
           visibility:
-            contentState.cursorEffects?.includes("highlight")
+            cursorEffects?.includes("highlight")
               ? "visible"
               : "hidden",
           position: "absolute",
@@ -133,7 +132,7 @@ const CursorModes = () => {
         style={{
           display: "block",
           visibility:
-            contentState.cursorEffects?.includes("target")
+            cursorEffects?.includes("target")
               ? "visible"
               : "hidden",
           position: "absolute",
@@ -157,7 +156,7 @@ const CursorModes = () => {
         className="spotlight"
         style={{
           position: "absolute",
-          display: contentState.cursorEffects?.includes("spotlight")
+          display: cursorEffects?.includes("spotlight")
             ? "block"
             : "none",
           top: lastMousePosition.y + "px",

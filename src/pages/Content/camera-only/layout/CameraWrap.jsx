@@ -1,9 +1,10 @@
 import React, { useEffect, useContext, useRef, useState } from "react";
 
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
 
 const CameraWrap = (props) => {
-  const contentState = useContentState();
+  const cameraFlipped = useContentStateSelector((s) => s.cameraFlipped);
   const setContentState = useContentSetter();
 
   return (
@@ -22,7 +23,7 @@ const CameraWrap = (props) => {
           bottom: 0,
           margin: "auto",
         }}
-        className={contentState.cameraFlipped ? "camera-flipped" : ""}
+        className={cameraFlipped ? "camera-flipped" : ""}
         src={chrome.runtime.getURL("camera.html")}
         allow="camera; microphone"
       ></iframe>

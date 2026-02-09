@@ -9,27 +9,28 @@ import React, {
 import * as ToastEl from "@radix-ui/react-toast";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
 
 const noop = () => {};
 
 const Toast = () => {
-  const contentState = useContentState();
   const setContentState = useContentSetter();
+  const hideUI = useContentStateSelector((s) => s.hideUI);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [trigger, setTrigger] = useState(() => noop);
   const triggerRef = useRef(trigger);
   const openRef = useRef(open);
-  const contentStateRef = useRef(contentState);
+  const hideUIRef = useRef(hideUI);
   const [toastDuration, setToastDuration] = useState(2000);
 
   useEffect(() => {
-    contentStateRef.current = contentState;
-  }, [contentState]);
+    hideUIRef.current = hideUI;
+  }, [hideUI]);
 
   const openToast = useCallback((title, action, durationMs = 2000) => {
-    if (contentStateRef.current.hideUI) return;
+    if (hideUIRef.current) return;
     setTitle(title);
     setOpen(true);
     setTrigger(() => (typeof action === "function" ? action : noop));

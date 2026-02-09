@@ -4,19 +4,17 @@ import * as Toolbar from "@radix-ui/react-toolbar";
 import * as Select from "@radix-ui/react-select";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
 
 const TextToolbar = (props) => {
   const toolbarRef = useRef(null);
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const canvas = useContentStateSelector((s) => s.canvas);
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
 
   useEffect(() => {
-    if (!contentState.canvas) return;
+    if (!canvas) return;
 
-    const canvas = contentState.canvas;
     const toolbar = toolbarRef.current;
 
     function positionToolbarOnTextbox(textbox) {
@@ -75,7 +73,7 @@ const TextToolbar = (props) => {
         positionToolbarOnTextbox(resizedObject);
       }
     });
-  }, [contentState.canvas]);
+  }, [canvas]);
 
   return (
     <div

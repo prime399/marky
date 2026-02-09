@@ -14,10 +14,17 @@ import {
 } from "../components/SVG";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const ShapeToolbar = (props) => {
-  const contentState = useContentState();
+  const { shape, shapeFill } = useContentStateSelector(
+    useShallow((s) => ({
+      shape: s.shape,
+      shapeFill: s.shapeFill,
+    }))
+  );
   const setContentState = useContentSetter();
 
   return (
@@ -29,7 +36,7 @@ const ShapeToolbar = (props) => {
       <Toolbar.ToggleGroup
         type="single"
         className="ToolbarToggleGroup"
-        value={contentState.shape}
+        value={shape}
         onValueChange={(value) => {
           if (value)
             setContentState((prevContentState) => ({
@@ -41,7 +48,7 @@ const ShapeToolbar = (props) => {
       >
         <div className="ToolbarToggleWrap">
           <Toolbar.ToggleItem className="ToolbarToggleItem" value="rectangle">
-            {contentState.shapeFill ? (
+            {shapeFill ? (
               <RectangleFilledIcon />
             ) : (
               <RectangleIcon />
@@ -50,12 +57,12 @@ const ShapeToolbar = (props) => {
         </div>
         <div className="ToolbarToggleWrap">
           <Toolbar.ToggleItem className="ToolbarToggleItem" value="circle">
-            {contentState.shapeFill ? <CircleFilledIcon /> : <CircleIcon />}
+            {shapeFill ? <CircleFilledIcon /> : <CircleIcon />}
           </Toolbar.ToggleItem>
         </div>
         <div className="ToolbarToggleWrap">
           <Toolbar.ToggleItem className="ToolbarToggleItem" value="triangle">
-            {contentState.shapeFill ? <TriangleFilledIcon /> : <TriangleIcon />}
+            {shapeFill ? <TriangleFilledIcon /> : <TriangleIcon />}
           </Toolbar.ToggleItem>
         </div>
       </Toolbar.ToggleGroup>
@@ -67,22 +74,22 @@ const ShapeToolbar = (props) => {
         onClick={() => {
           setContentState((prevContentState) => ({
             ...prevContentState,
-            shapeFill: !contentState.shapeFill,
+            shapeFill: !shapeFill,
           }));
-          chrome.storage.local.set({ shapeFill: !contentState.shapeFill });
+          chrome.storage.local.set({ shapeFill: !shapeFill });
         }}
       >
-        {contentState.shape === "rectangle" && contentState.shapeFill ? (
+        {shape === "rectangle" && shapeFill ? (
           <RectangleIcon />
-        ) : contentState.shape === "circle" && contentState.shapeFill ? (
+        ) : shape === "circle" && shapeFill ? (
           <CircleIcon />
-        ) : contentState.shape === "triangle" && contentState.shapeFill ? (
+        ) : shape === "triangle" && shapeFill ? (
           <TriangleIcon />
-        ) : contentState.shape === "rectangle" && !contentState.shapeFill ? (
+        ) : shape === "rectangle" && !shapeFill ? (
           <RectangleFilledIcon />
-        ) : contentState.shape === "circle" && !contentState.shapeFill ? (
+        ) : shape === "circle" && !shapeFill ? (
           <CircleFilledIcon />
-        ) : contentState.shape === "triangle" && !contentState.shapeFill ? (
+        ) : shape === "triangle" && !shapeFill ? (
           <TriangleFilledIcon />
         ) : null}
       </ToolTrigger>

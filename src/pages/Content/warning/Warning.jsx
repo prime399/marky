@@ -16,10 +16,17 @@ import {
 import * as ToastEl from "@radix-ui/react-toast";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Warning = () => {
-  const contentState = useContentState();
+  const { recordingType, recording } = useContentStateSelector(
+    useShallow((s) => ({
+      recordingType: s.recordingType,
+      recording: s.recording,
+    }))
+  );
   const setContentState = useContentSetter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("Record computer audio");
@@ -51,17 +58,17 @@ const Warning = () => {
 
   useEffect(() => {
     if (icon === "AudioIcon") {
-      if (contentState.recordingType === "region") {
+      if (recordingType === "region") {
         setOpen(false);
       }
     }
-  }, [contentState.recordingType]);
+  }, [recordingType]);
 
   useEffect(() => {
-    if (contentState.recording) {
+    if (recording) {
       setOpen(false);
     }
-  }, [contentState.recording]);
+  }, [recording]);
 
   return (
     <ToastEl.Provider swipeDirection="up" duration={duration}>

@@ -7,11 +7,18 @@ import { hsvaToHex } from "@uiw/color-convert";
 import TooltipWrap from "./TooltipWrap";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const ColorWheel = (props) => {
   const [hsva, setHsva] = React.useState({ h: 200, s: 50, v: 100, a: 1 });
-  const contentState = useContentState();
+  const { color, swatch } = useContentStateSelector(
+    useShallow((s) => ({
+      color: s.color,
+      swatch: s.swatch,
+    }))
+  );
   const setContentState = useContentSetter();
   const wheelRef = useRef(null);
   const stateRef = useRef();
@@ -33,25 +40,25 @@ const ColorWheel = (props) => {
     >
       <div
         className={
-          contentState.swatch === 5
+          swatch === 5
             ? "radial-menu-item-child color-active"
             : "radial-menu-item-child"
         }
         onClick={handleClick}
         style={
-          contentState.swatch === 5
-            ? { backgroundColor: contentState.color }
+          swatch === 5
+            ? { backgroundColor: color }
             : {}
         }
         ref={wheelRef}
         tabIndex={props.open ? "0" : "-1"}
       >
         <div className="color-wheel-input">
-          {contentState.color.toUpperCase()}
+          {color.toUpperCase()}
         </div>
         <div
           className="color-preview"
-          style={{ backgroundColor: contentState.color }}
+          style={{ backgroundColor: color }}
         ></div>
         <Wheel
           color={hsva}

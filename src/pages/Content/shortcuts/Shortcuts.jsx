@@ -1,17 +1,23 @@
 import React, { useEffect, useContext, useRef } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import useContentStore from "../state/contentStore";
 import { undoCanvas, redoCanvas, saveCanvas } from "../canvas/modules/History";
 
 const Shortcuts = ({ shortcuts }) => {
-  const contentState = useContentState();
   const setContentState = useContentSetter();
-  const contentStateRef = useRef(contentState);
+  const contentStateRef = useRef(null);
 
   useEffect(() => {
-    contentStateRef.current = contentState;
-  }, [contentState]);
+    // Subscribe to the full state for the ref only (no re-renders)
+    const unsub = useContentStore.subscribe(
+      (store) => { contentStateRef.current = store.state || {}; }
+    );
+    contentStateRef.current = useContentStore.getState().state || {};
+    return unsub;
+  }, []);
   /* For the record, this is the shortcuts object:
 	shortcuts: {
       "start-recording": "ctrl+shift+1",
@@ -281,7 +287,7 @@ const Shortcuts = ({ shortcuts }) => {
         chrome.runtime.sendMessage({
           type: "set-mic-active-tab",
           active: true,
-          defaultAudioInput: contentState.defaultAudioInput,
+          defaultAudioInput: contentStateRef.current.defaultAudioInput,
         });
       }
     };
@@ -301,7 +307,7 @@ const Shortcuts = ({ shortcuts }) => {
         chrome.runtime.sendMessage({
           type: "set-mic-active-tab",
           active: false,
-          defaultAudioInput: contentState.defaultAudioInput,
+          defaultAudioInput: contentStateRef.current.defaultAudioInput,
         });
       }
     };

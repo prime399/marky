@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { fabric } from "fabric";
 
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import useContentStore from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 import CustomControls from "../modules/CustomControls";
 
@@ -20,7 +23,16 @@ import {
 } from "../modules/History";
 
 const CanvasWrap = (props) => {
-  const contentState = useContentState();
+  const { tool, drawingMode, hideToolbar, hideUI, recording } =
+    useContentStateSelector(
+      useShallow((s) => ({
+        tool: s.tool,
+        drawingMode: s.drawingMode,
+        hideToolbar: s.hideToolbar,
+        hideUI: s.hideUI,
+        recording: s.recording,
+      }))
+    );
   const setContentState = useContentSetter();
   const contentStateRef = useRef(null);
   const canvasContainer = useRef();
@@ -28,8 +40,13 @@ const CanvasWrap = (props) => {
   const fabricRef = useRef();
 
   useEffect(() => {
-    contentStateRef.current = contentState;
-  }, [contentState]);
+    // Subscribe to the full state for the ref only (no re-renders)
+    const unsub = useContentStore.subscribe(
+      (store) => { contentStateRef.current = store.state || {}; }
+    );
+    contentStateRef.current = useContentStore.getState().state || {};
+    return unsub;
+  }, []);
 
   // INIT
   useEffect(() => {
@@ -88,10 +105,8 @@ const CanvasWrap = (props) => {
     const canvas = fabricRef.current;
     if (!canvas) return;
 
-    const tool = contentState.tool;
-
     const shouldDraw =
-      contentState.drawingMode && (tool === "pen" || tool === "highlighter");
+      drawingMode && (tool === "pen" || tool === "highlighter");
 
     canvas.isDrawingMode = shouldDraw;
 
@@ -104,18 +119,18 @@ const CanvasWrap = (props) => {
     }
 
     canvas.requestRenderAll();
-  }, [contentState.tool, contentState.drawingMode]);
+  }, [tool, drawingMode]);
 
   useEffect(() => {
     const canvas = fabricRef.current;
     if (!canvas) return;
 
     // Only discard selection when leaving select (or when entering a drawing tool)
-    if (contentState.tool !== "select") {
+    if (tool !== "select") {
       canvas.discardActiveObject();
       canvas.requestRenderAll();
     }
-  }, [contentState.tool]);
+  }, [tool]);
 
   const panXRef = useRef(window.scrollX);
   const panYRef = useRef(window.scrollY);
@@ -221,7 +236,7 @@ const CanvasWrap = (props) => {
   useEffect(() => {
     // Prevent selecting elements unless in select mode
     if (!fabricRef.current) return;
-    if (contentState.tool !== "select") {
+    if (tool !== "select") {
       // De-select all objects on canvas
       fabricRef.current.discardActiveObject();
 
@@ -237,7 +252,7 @@ const CanvasWrap = (props) => {
       });
       fabricRef.current.renderAll();
     }
-  }, [contentState.tool]);
+  }, [tool]);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -270,13 +285,13 @@ const CanvasWrap = (props) => {
     // De-select all objects on canvas
     fabricRef.current.discardActiveObject();
     fabricRef.current.requestRenderAll();
-  }, [contentState.drawingMode]);
+  }, [drawingMode]);
 
   return (
     <div
       style={
-        !contentState.drawingMode ||
-        (contentState.hideToolbar && contentState.hideUI)
+        !drawingMode ||
+        (hideToolbar && hideUI)
           ? { all: "unset", pointerEvents: "none" }
           : { all: "unset", pointerEvents: "all" }
       }
@@ -289,7 +304,7 @@ const CanvasWrap = (props) => {
           height: "100vh",
           width: "100vw",
           zIndex:
-            contentState.drawingMode && !contentState.recording
+            drawingMode && !recording
               ? 99999999999
               : 99999999,
         }}

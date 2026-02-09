@@ -2,10 +2,11 @@ import React, { useContext } from "react";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
 
 const BackgroundEffects = () => {
-  const contentState = useContentState();
+  const backgroundEffect = useContentStateSelector((s) => s.backgroundEffect);
   const setContentState = useContentSetter();
 
   // Background images
@@ -29,7 +30,7 @@ const BackgroundEffects = () => {
         className="background-effects-toggle-group"
         type="single"
         defaultValue="blur"
-        value={contentState.backgroundEffect}
+        value={backgroundEffect}
         onValueChange={(value) => {
           if (value) {
             setContentState((prevContentState) => ({

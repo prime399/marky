@@ -12,13 +12,49 @@ import { CheckWhiteIcon, DropdownGroup } from "../../images/popup/images";
 import JSZip from "jszip";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const CLOUD_FEATURES_ENABLED =
   process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
 
 const SettingsMenu = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      openModal: s.openModal,
+      openToast: s.openToast,
+      qualityValue: s.qualityValue,
+      systemAudio: s.systemAudio,
+      backup: s.backup,
+      isLoggedIn: s.isLoggedIn,
+      screenityUser: s.screenityUser,
+      defaultAudioInput: s.defaultAudioInput,
+      defaultAudioOutput: s.defaultAudioOutput,
+      defaultVideoInput: s.defaultVideoInput,
+      quality: s.quality,
+      audioInput: s.audioInput,
+      audioOutput: s.audioOutput,
+      backgroundEffectsActive: s.backgroundEffectsActive,
+      recording: s.recording,
+      recordingType: s.recordingType,
+      askForPermissions: s.askForPermissions,
+      cameraPermission: s.cameraPermission,
+      microphonePermission: s.microphonePermission,
+      askMicrophone: s.askMicrophone,
+      cursorMode: s.cursorMode,
+      zoomEnabled: s.zoomEnabled,
+      offscreenRecording: s.offscreenRecording,
+      updateChrome: s.updateChrome,
+      permissionsChecked: s.permissionsChecked,
+      permissionsLoaded: s.permissionsLoaded,
+      hideUI: s.hideUI,
+      alarm: s.alarm,
+      alarmTime: s.alarmTime,
+      surface: s.surface,
+      blurMode: s.blurMode,
+    }))
+  );
   const setContentState = useContentSetter();
   const [restore, setRestore] = useState(false);
   const [oldChrome, setOldChrome] = useState(false);

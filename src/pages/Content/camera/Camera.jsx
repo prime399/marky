@@ -2,11 +2,21 @@ import React, { useContext, useEffect } from "react";
 
 import CameraWrap from "./layout/CameraWrap";
 
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Camera = (props) => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      isSubscribed: s.isSubscribed,
+      instantMode: s.instantMode,
+      multiMode: s.multiMode,
+      recording: s.recording,
+      onboarding: s.onboarding,
+      defaultVideoInput: s.defaultVideoInput,
+      cameraActive: s.cameraActive,
+    }))
+  );
 
   return (
     <div

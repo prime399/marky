@@ -7,11 +7,19 @@ import Switch from "../components/Switch";
 import TimeSetter from "../components/TimeSetter";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Settings = () => {
   const [open, setOpen] = useState(false);
-  const contentState = useContentState();
+  const { alarm, recordingType, isSubscribed } = useContentStateSelector(
+    useShallow((s) => ({
+      alarm: s.alarm,
+      recordingType: s.recordingType,
+      isSubscribed: s.isSubscribed,
+    }))
+  );
   const setContentState = useContentSetter();
   const [chromeVersion, setChromeVersion] = useState(null);
   // Check if Mac
@@ -64,15 +72,15 @@ const Settings = () => {
           name="alarm"
           value="alarm"
         />
-        {contentState.alarm && <TimeSetter />}
+        {alarm && <TimeSetter />}
         <Switch
           label={chrome.i18n.getMessage("micReminderPopup")}
           name="askMicrophone"
           value="askMicrophone"
         />
-        {contentState.recordingType != "region" &&
-          contentState.recordingType != "camera" &&
-          !contentState.isSubscribed &&
+        {recordingType != "region" &&
+          recordingType != "camera" &&
+          !isSubscribed &&
           (chromeVersion === null || chromeVersion >= 109) && (
             <Switch
               label={chrome.i18n.getMessage("stayInPagePopup")}
@@ -80,8 +88,8 @@ const Settings = () => {
               value="offscreenRecording"
             />
           )}
-        {contentState.recordingType != "camera" &&
-          !contentState.isSubscribed && (
+        {recordingType != "camera" &&
+          !isSubscribed && (
             <Switch
               label={
                 chrome.i18n.getMessage("zoomToPointPopup") +

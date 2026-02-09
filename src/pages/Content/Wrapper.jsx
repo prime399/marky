@@ -21,7 +21,7 @@ import ZoomContainer from "./utils/ZoomContainer";
 import BlurTool from "./utils/BlurTool";
 import CursorModes from "./utils/CursorModes";
 
-import { useContentState, useContentSetter } from "./context/ContentState";
+import { useContentSetter } from "./context/ContentState";
 import { useContentStateSelector } from "./state/contentStore";
 import { useShallow } from "zustand/react/shallow";
 

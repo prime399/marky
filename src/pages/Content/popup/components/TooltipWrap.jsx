@@ -3,22 +3,21 @@ import React, { useEffect, useContext, useState } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
 
 const TooltipWrap = (props) => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const hideUI = useContentStateSelector((s) => s.hideUI);
   const classname = props.name ? props.name : "";
   const [override, setOverride] = useState("");
 
   useEffect(() => {
     // Check if hideUI is set
-    if (contentState.hideUI) {
+    if (hideUI) {
       setOverride("override");
     } else {
       setOverride("");
     }
-  }, [contentState.hideUI]);
+  }, [hideUI]);
 
   return (
     <div className={classname} style={props.style}>

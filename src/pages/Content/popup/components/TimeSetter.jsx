@@ -1,33 +1,41 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const TimeSetter = () => {
-  const contentState = useContentState();
+  const { alarmTime, fromAlarm, alarm } = useContentStateSelector(
+    useShallow((s) => ({
+      alarmTime: s.alarmTime,
+      fromAlarm: s.fromAlarm,
+      alarm: s.alarm,
+    }))
+  );
   const setContentState = useContentSetter();
-  const [hours, setHours] = useState(Math.floor(contentState.alarmTime / 3600));
+  const [hours, setHours] = useState(Math.floor(alarmTime / 3600));
   const [minutes, setMinutes] = useState(
-    Math.floor((contentState.alarmTime % 3600) / 60)
+    Math.floor((alarmTime % 3600) / 60)
   );
   const [seconds, setSeconds] = useState(
-    Math.floor((contentState.alarmTime % 3600) % 60)
+    Math.floor((alarmTime % 3600) % 60)
   );
 
   useEffect(() => {
     // Get from contentState
-    setHours(Math.floor(contentState.alarmTime / 3600));
-    setMinutes(Math.floor((contentState.alarmTime % 3600) / 60));
-    setSeconds(Math.floor((contentState.alarmTime % 3600) % 60));
+    setHours(Math.floor(alarmTime / 3600));
+    setMinutes(Math.floor((alarmTime % 3600) / 60));
+    setSeconds(Math.floor((alarmTime % 3600) % 60));
   }, []);
 
   useEffect(() => {
-    if (!contentState.fromAlarm) return;
+    if (!fromAlarm) return;
     // Set the time in seconds
-    setHours(Math.floor(contentState.alarmTime / 3600));
-    setMinutes(Math.floor((contentState.alarmTime % 3600) / 60));
-    setSeconds(Math.floor((contentState.alarmTime % 3600) % 60));
-  }, [contentState.alarmTime]);
+    setHours(Math.floor(alarmTime / 3600));
+    setMinutes(Math.floor((alarmTime % 3600) / 60));
+    setSeconds(Math.floor((alarmTime % 3600) % 60));
+  }, [alarmTime]);
 
   useEffect(() => {
     if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) return;
@@ -50,7 +58,7 @@ const TimeSetter = () => {
 
   useEffect(() => {
     if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) return;
-    if (contentState.alarm) {
+    if (alarm) {
       setContentState((prevContentState) => ({
         ...prevContentState,
         time: hours * 3600 + minutes * 60 + seconds,
@@ -64,7 +72,7 @@ const TimeSetter = () => {
         timer: 0,
       }));
     }
-  }, [contentState.alarm]);
+  }, [alarm]);
 
   const handleHours = (e) => {
     // Limit between 0 to 4, number only

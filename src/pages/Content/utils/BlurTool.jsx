@@ -7,22 +7,27 @@ import React, {
 } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const BlurTool = () => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const { blurMode, showExtension } = useContentStateSelector(
+    useShallow((s) => ({
+      blurMode: s.blurMode,
+      showExtension: s.showExtension,
+    }))
+  );
   const hoveredElementRef = useRef(null);
   const blurModeRef = useRef(null);
   const [showOutline, setShowOutline] = useState(false);
   const [outlineRect, setOutlineRect] = useState(null);
 
   useEffect(() => {
-    blurModeRef.current = contentState.blurMode;
-  }, [contentState.blurMode]);
+    blurModeRef.current = blurMode;
+  }, [blurMode]);
 
   useEffect(() => {
-    if (!contentState.showExtension) {
+    if (!showExtension) {
       setShowOutline(false);
       // Remove blur from all elements
       const elements = document.querySelectorAll(".screenity-blur");
@@ -30,7 +35,7 @@ const BlurTool = () => {
         element.classList.remove("screenity-blur");
       });
     }
-  }, [contentState.showExtension]);
+  }, [showExtension]);
 
   useLayoutEffect(() => {
     const updateOutline = (target) => {

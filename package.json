@@ -97,8 +97,11 @@
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.6",
     "ts-loader": "^9.4.1",
-    "typescript": "^4.9.3",
+    "typescript": "^5.9.3",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^5.2.3"
+  },
+  "overrides": {
+    "tar": "7.5.7"
   }
 }

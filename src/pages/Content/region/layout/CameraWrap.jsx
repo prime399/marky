@@ -3,13 +3,20 @@ import React, { useEffect, useContext, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 import CameraToolbar from "./CameraToolbar";
 import ResizeHandle from "../components/ResizeHandle";
 
 const CameraWrap = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      cameraDimensions: s.cameraDimensions,
+      cameraFlipped: s.cameraFlipped,
+    }))
+  );
   const setContentState = useContentSetter();
   const cameraRef = React.useRef();
   const [cx, setCx] = useState(200);

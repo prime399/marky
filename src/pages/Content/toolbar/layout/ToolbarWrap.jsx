@@ -20,7 +20,9 @@ import Toast from "../components/Toast";
 import { CloseIconPopup } from "../components/SVG";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 // Icons
 import {
@@ -43,7 +45,36 @@ import {
 import MicToggle from "../components/MicToggle";
 
 const ToolbarWrap = () => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      time: s.time,
+      recording: s.recording,
+      paused: s.paused,
+      toolbarHover: s.toolbarHover,
+      hideUI: s.hideUI,
+      shadowRef: s.shadowRef,
+      toolbarPosition: s.toolbarPosition,
+      drawingMode: s.drawingMode,
+      blurMode: s.blurMode,
+      openToast: s.openToast,
+      showOnboardingArrow: s.showOnboardingArrow,
+      toggleDrawingModeShortcut: s.toggleDrawingModeShortcut,
+      toggleBlurModeShortcut: s.toggleBlurModeShortcut,
+      toggleCursorModeShortcut: s.toggleCursorModeShortcut,
+      cursorMode: s.cursorMode,
+      cameraActive: s.cameraActive,
+      defaultVideoInput: s.defaultVideoInput,
+      isSubscribed: s.isSubscribed,
+      cameraPermission: s.cameraPermission,
+      recordingType: s.recordingType,
+      timeWarning: s.timeWarning,
+      stopRecording: s.stopRecording,
+      pauseRecording: s.pauseRecording,
+      resumeRecording: s.resumeRecording,
+      tryRestartRecording: s.tryRestartRecording,
+      tryDismissRecording: s.tryDismissRecording,
+    }))
+  );
   const setContentState = useContentSetter();
   const t = contentState.time;
   const [mode, setMode] = React.useState("");

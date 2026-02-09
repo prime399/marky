@@ -45,16 +45,32 @@ import TooltipWrap from "../components/TooltipWrap";
 import ImageTool from "../../canvas/modules/ImageTool";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import useContentStore from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const DrawingToolbar = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      tool: s.tool,
+      canvas: s.canvas,
+      shape: s.shape,
+      shapeFill: s.shapeFill,
+      undoStack: s.undoStack,
+      redoStack: s.redoStack,
+    }))
+  );
   const setContentState = useContentSetter();
   const [tool, setTool] = useState("");
-  const contentStateRef = useRef(contentState);
+  const contentStateRef = useRef(null);
   useEffect(() => {
-    contentStateRef.current = contentState;
-  }, [contentState]);
+    const unsub = useContentStore.subscribe(
+      (store) => { contentStateRef.current = store.state || {}; }
+    );
+    contentStateRef.current = useContentStore.getState().state || {};
+    return unsub;
+  }, []);
 
   const imageFileInput = useRef(null);
 

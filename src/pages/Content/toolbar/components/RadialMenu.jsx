@@ -6,7 +6,9 @@ import * as Popover from "@radix-ui/react-popover";
 import { EyeDropperIcon } from "./SVG";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
@@ -16,7 +18,13 @@ import ColorWheel from "./ColorWheel";
 import StrokeWeight from "./StrokeWeight";
 
 const RadialMenu = (props) => {
-  const contentState = useContentState();
+  const { color, swatch, strokeWidth } = useContentStateSelector(
+    useShallow((s) => ({
+      color: s.color,
+      swatch: s.swatch,
+      strokeWidth: s.strokeWidth,
+    }))
+  );
   const setContentState = useContentSetter();
   const ref = React.useRef(null);
   const buttonRef = React.useRef(null);
@@ -96,7 +104,7 @@ const RadialMenu = (props) => {
           >
             <div
               className="ColorPicker"
-              style={{ backgroundColor: contentState.color }}
+              style={{ backgroundColor: color }}
             ></div>
           </div>
         </Popover.Trigger>
@@ -133,7 +141,7 @@ const RadialMenu = (props) => {
               <ToggleGroup.Root
                 className="stroke-weight"
                 type="single"
-                value={contentState.strokeWidth}
+                value={strokeWidth}
                 onValueChange={(value) => {
                   setContentState((prevContentState) => ({
                     ...prevContentState,
@@ -165,7 +173,7 @@ const RadialMenu = (props) => {
                           });
                         }}
                         className={
-                          contentState.swatch === index
+                          swatch === index
                             ? "radial-menu-item-child color-active"
                             : "radial-menu-item-child"
                         }

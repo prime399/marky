@@ -7,10 +7,19 @@ import TooltipWrap from "./TooltipWrap";
 import { MicIcon } from "./SVG";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const MicToggle = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      microphonePermission: s.microphonePermission,
+      micActive: s.micActive,
+      defaultAudioInput: s.defaultAudioInput,
+      openToast: s.openToast,
+    }))
+  );
   const setContentState = useContentSetter();
 
   return (

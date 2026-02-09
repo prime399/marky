@@ -5,7 +5,9 @@ import * as S from "@radix-ui/react-switch";
 import { DropdownIcon } from "../../images/popup/images";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 export const BaseSwitch = ({ value, checked, onChange }) => (
   <S.Root
@@ -19,7 +21,14 @@ export const BaseSwitch = ({ value, checked, onChange }) => (
 );
 
 const Switch = (props) => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      hideUIAlerts: s.hideUIAlerts,
+      hideToolbar: s.hideToolbar,
+      toolbarHover: s.toolbarHover,
+      [props.value]: s[props.value],
+    }))
+  );
   const setContentState = useContentSetter();
   const switchRef = useRef(null);
   const [hideToolbarLabel, setHideToolbarLabel] = useState(

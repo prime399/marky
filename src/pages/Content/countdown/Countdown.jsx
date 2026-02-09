@@ -1,12 +1,24 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const COUNTDOWN_TIME = 3;
 
 const Countdown = () => {
-  const contentState = useContentState();
+  const contentState = useContentStateSelector(
+    useShallow((s) => ({
+      countdownActive: s.countdownActive,
+      countdownCancelled: s.countdownCancelled,
+      isCountdownVisible: s.isCountdownVisible,
+      startRecordingAfterCountdown: s.startRecordingAfterCountdown,
+      onCountdownFinished: s.onCountdownFinished,
+      resetCountdown: s.resetCountdown,
+      cancelCountdown: s.cancelCountdown,
+    }))
+  );
   const setContentState = useContentSetter();
   const [count, setCount] = useState(COUNTDOWN_TIME);
   const [isTransforming, setIsTransforming] = useState(false);

@@ -6,10 +6,17 @@ import TooltipWrap from "../../toolbar/components/TooltipWrap";
 
 import { CameraCloseIcon, Pip } from "../../toolbar/components/SVG";
 
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const CameraToolbar = () => {
-  const contentState = useContentState();
+  const { recording, surface } = useContentStateSelector(
+    useShallow((s) => ({
+      recording: s.recording,
+      surface: s.surface,
+    }))
+  );
   const setContentState = useContentSetter();
 
   return (
@@ -26,7 +33,7 @@ const CameraToolbar = () => {
       >
         <CameraCloseIcon />
       </Toolbar.Button>
-      {contentState.recording && contentState.surface === "monitor" && (
+      {recording && surface === "monitor" && (
         <TooltipWrap
           content={chrome.i18n.getMessage("togglePictureinPictureModeTooltip")}
         >

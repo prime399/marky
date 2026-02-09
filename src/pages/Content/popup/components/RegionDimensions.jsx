@@ -1,10 +1,17 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../../context/ContentState";
+import { useContentSetter } from "../../context/ContentState";
+import { useContentStateSelector } from "../../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const RegionDimensions = () => {
-  const contentState = useContentState();
+  const { regionWidth, regionHeight } = useContentStateSelector(
+    useShallow((s) => ({
+      regionWidth: s.regionWidth,
+      regionHeight: s.regionHeight,
+    }))
+  );
   const setContentState = useContentSetter();
 
   const handleWidth = (e) => {
@@ -66,7 +73,7 @@ const RegionDimensions = () => {
               });
             }
           }}
-          value={contentState.regionWidth}
+          value={regionWidth}
         />
         <span>W</span>
       </div>
@@ -89,7 +96,7 @@ const RegionDimensions = () => {
               });
             }
           }}
-          value={contentState.regionHeight}
+          value={regionHeight}
         />
         <span>H</span>
       </div>

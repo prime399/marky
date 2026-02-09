@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 
 // Context
-import { useContentState, useContentSetter } from "../context/ContentState";
+import { useContentStateSelector } from "../state/contentStore";
+import useContentStore from "../state/contentStore";
+import { useShallow } from "zustand/react/shallow";
 
 const ZoomContainer = () => {
-  const contentState = useContentState();
-  const setContentState = useContentSetter();
+  const { zoomEnabled, showExtension, showPopup } = useContentStateSelector(
+    useShallow((s) => ({
+      zoomEnabled: s.zoomEnabled,
+      showExtension: s.showExtension,
+      showPopup: s.showPopup,
+    }))
+  );
   const [zoomLevel, setZoomLevel] = useState(1);
   const scaleRef = useRef(1);
   const translateXRef = useRef(0);
@@ -21,7 +28,7 @@ const ZoomContainer = () => {
   const oldOverflow = useRef(null);
   const oldTop = useRef(null);
   const oldLeft = useRef(null);
-  const contentStateRef = useRef(contentState);
+  const contentStateRef = useRef(null);
   const observer = useRef(null);
 
   useEffect(() => {
@@ -34,8 +41,12 @@ const ZoomContainer = () => {
   }, []);
 
   useEffect(() => {
-    contentStateRef.current = contentState;
-  }, [contentState]);
+    const unsub = useContentStore.subscribe(
+      (store) => { contentStateRef.current = store.state || {}; }
+    );
+    contentStateRef.current = useContentStore.getState().state || {};
+    return unsub;
+  }, []);
 
   const handleKeyDown = (e) => {
     // Alt / Option + Shift + Z
@@ -168,11 +179,11 @@ const ZoomContainer = () => {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [contentState.zoomEnabled, contentState.showExtension]);
+  }, [zoomEnabled, showExtension]);
 
   useEffect(() => {
-    if (!contentState.zoomEnabled) return;
-    if (!contentState.showPopup) return;
+    if (!zoomEnabled) return;
+    if (!showPopup) return;
 
     setTimeout(() => {
       //if (!contentState.recording) return;
@@ -199,7 +210,7 @@ const ZoomContainer = () => {
       zoomSelector.current = document.querySelector("#screenity-zoom-wrap");
 
       observer.current = new MutationObserver((mutations) => {
-        if (!contentState.showExtension) {
+        if (!showExtension) {
           mutations.forEach((mutation) => {
             if (mutation.addedNodes.length > 0) {
               const screenityUi = document.querySelector("#screenity-ui");
@@ -240,11 +251,11 @@ const ZoomContainer = () => {
         setZoomLevel(scaleRef.current);
       }, 500);
     };
-  }, [contentState.zoomEnabled, contentState.showExtension]);
+  }, [zoomEnabled, showExtension]);
 
   useEffect(() => {
     setTimeout(() => {
-      if (!contentState.zoomEnabled || !contentState.showExtension) {
+      if (!zoomEnabled || !showExtension) {
         const zoomWrap = document.querySelector("#screenity-zoom-wrap");
         if (zoomWrap) {
           while (zoomWrap.firstChild) {
@@ -262,7 +273,7 @@ const ZoomContainer = () => {
         setZoomLevel(scaleRef.current);
       }
     }, 500);
-  }, [contentState.zoomEnabled, contentState.showExtension]);
+  }, [zoomEnabled, showExtension]);
 
   useEffect(() => {
     if (!zoomSelector.current) return;

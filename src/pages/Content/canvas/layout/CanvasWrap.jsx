@@ -78,7 +78,7 @@ const CanvasWrap = (props) => {
     CustomControls(canvas);
     saveCanvas(
       {
-        ...contentState,
+        ...contentStateRef.current,
         canvas: canvas,
       },
       setContentState,

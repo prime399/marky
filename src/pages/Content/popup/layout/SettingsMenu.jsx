@@ -53,6 +53,7 @@ const SettingsMenu = (props) => {
       alarmTime: s.alarmTime,
       surface: s.surface,
       blurMode: s.blurMode,
+      fpsValue: s.fpsValue,
     }))
   );
   const setContentState = useContentSetter();

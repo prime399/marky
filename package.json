@@ -4,7 +4,8 @@
   "description": "The free and privacy-friendly screen recorder with no sign in needed.",
   "main": "dist/main/main.js",
   "scripts": {
-    "build": "cross-env NODE_ENV=production node utils/build.js",
+    "build": "cross-env NODE_ENV=production npm run build:electron",
+    "build:extension": "cross-env NODE_ENV=production node utils/build.js",
     "build:main": "cross-env NODE_ENV=production webpack --config webpack.main.config.js",
     "build:preload": "cross-env NODE_ENV=production webpack --config webpack.preload.config.js",
     "build:renderer": "cross-env NODE_ENV=production webpack --config webpack.renderer.config.js",
@@ -13,7 +14,7 @@
     "dev:main": "cross-env NODE_ENV=development webpack --config webpack.main.config.js && cross-env NODE_ENV=development webpack --config webpack.preload.config.js",
     "dev:electron": "npm run dev:main && concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
     "start": "cross-env NODE_ENV=development node utils/server.js",
-    "dev": "npm run hot-reload",
+    "dev": "npm run dev:electron . --disable-gpu --no-sandbox",
     "watch": "cross-env NODE_ENV=development webpack --watch",
     "hot-reload": "cross-env NODE_ENV=development webpack serve --hot",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",

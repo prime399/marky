@@ -24,6 +24,7 @@ const entryPoints = {
   editor: [adapterShim, path.join(__dirname, "src", "pages", "Editor", "index.jsx")],
   editorwebcodecs: [adapterShim, path.join(__dirname, "src", "pages", "EditorWebCodecs", "index.jsx")],
   editorviewer: [adapterShim, path.join(__dirname, "src", "pages", "EditorViewer", "index.jsx")],
+  sourcepicker: [adapterShim, path.join(__dirname, "src", "pages", "SourcePicker", "index.jsx")],
 };
 
 const htmlPlugins = Object.keys(entryPoints)
@@ -32,6 +33,7 @@ const htmlPlugins = Object.keys(entryPoints)
       cloudrecorder: "CloudRecorder",
       editorwebcodecs: "EditorWebCodecs",
       editorviewer: "EditorViewer",
+      sourcepicker: "SourcePicker",
     };
 
     const folderName =

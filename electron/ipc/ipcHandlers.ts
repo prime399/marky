@@ -164,6 +164,13 @@ async function handleMessage(
       console.error("[recording-error]", payload);
       return { ok: true };
 
+    case "source-selected":
+      return await handleSourceSelected(payload);
+
+    case "source-cancelled":
+      windowManager.close("sourcePicker");
+      return { ok: true };
+
     case "check-recording": {
       const recording = electronStore.get("recording");
       return { recording: Boolean(recording?.recording) };
@@ -369,6 +376,29 @@ async function handleMessage(
 }
 
 // --- Handler implementations ---
+
+async function handleSourceSelected(payload: any): Promise<any> {
+  const { sourceId } = payload;
+  windowManager.close("sourcePicker");
+
+  electronStore.set({
+    recording: true,
+    paused: false,
+    recordingStartTime: Date.now(),
+    totalPausedMs: 0,
+    pendingRecording: false,
+  });
+
+  await createRecorderWindow(sourceId);
+
+  // Also notify the main window that recording has started
+  windowManager.sendTo("main", "message", {
+    type: "recording-started",
+    sourceId,
+  });
+
+  return { ok: true };
+}
 
 async function handleDesktopCapture(): Promise<any> {
   await createSourcePickerWindow();

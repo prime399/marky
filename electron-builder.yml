@@ -1,0 +1,50 @@
+appId: com.screenity.app
+productName: Screenity
+copyright: Copyright © 2024 Screenity
+
+directories:
+  output: release
+  buildResources: build-resources
+
+files:
+  - dist/**/*
+  - src/assets/**/*
+  - src/_locales/**/*
+  - "!node_modules/**/*"
+
+extraResources:
+  - from: src/assets/
+    to: assets/
+  - from: src/_locales/
+    to: _locales/
+
+mac:
+  category: public.app-category.productivity
+  icon: src/assets/favicon.png
+  target:
+    - dmg
+    - zip
+  hardenedRuntime: true
+  entitlements: build-resources/entitlements.mac.plist
+  extendInfo:
+    NSMicrophoneUsageDescription: "Screenity needs microphone access to record audio."
+    NSCameraUsageDescription: "Screenity needs camera access for camera recording."
+    NSScreenCaptureUsageDescription: "Screenity needs screen recording permission."
+
+win:
+  icon: src/assets/favicon.png
+  target:
+    - nsis
+  publisherName: Screenity
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: src/assets/favicon.png
+
+linux:
+  icon: src/assets/favicon.png
+  category: Utility
+  target:
+    - AppImage
+    - deb

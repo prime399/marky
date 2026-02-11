@@ -4,7 +4,21 @@ const Setup = () => {
   const [setupComplete, setSetupComplete] = useState(false);
 
   useEffect(() => {
-    // Inject content script
+    // Skip content script injection in Electron (not applicable)
+    const isElectron = !!(window.electronAPI);
+    if (isElectron) {
+      // Only inject font CSS
+      const style = document.createElement("link");
+      style.rel = "stylesheet";
+      style.type = "text/css";
+      style.href = chrome.runtime.getURL("assets/fonts/fonts.css");
+      document.body.appendChild(style);
+      return () => {
+        document.body.removeChild(style);
+      };
+    }
+
+    // Inject content script (Chrome extension only)
     const script = document.createElement("script");
     script.src = chrome.runtime.getURL("contentScript.bundle.js");
     script.async = true;

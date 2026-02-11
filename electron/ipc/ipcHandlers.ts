@@ -1,8 +1,15 @@
-import { ipcMain, desktopCapturer, dialog, app } from "electron";
+import { ipcMain, desktopCapturer, dialog, app, shell, screen } from "electron";
 import { IPC } from "./channels";
 import electronStore from "../storage/electronStore";
+import { windowManager } from "../windows/windowManager";
+import {
+  createRecorderWindow,
+  createCameraWindow,
+  createEditorWindow,
+  createSourcePickerWindow,
+  openExternalURL,
+} from "../windows/appWindows";
 import * as fs from "fs";
-import * as path from "path";
 
 export function initializeIpcHandlers(): void {
   // --- Storage handlers ---
@@ -26,8 +33,8 @@ export function initializeIpcHandlers(): void {
   });
 
   // --- Generic message dispatch (replaces chrome.runtime.sendMessage) ---
-  ipcMain.handle(IPC.MESSAGE, async (_event, message) => {
-    return handleMessage(message);
+  ipcMain.handle(IPC.MESSAGE, async (event, message) => {
+    return handleMessage(message, event);
   });
 
   // --- Desktop capture ---
@@ -47,8 +54,7 @@ export function initializeIpcHandlers(): void {
 
   // --- File save dialog ---
   ipcMain.handle(IPC.SHOW_SAVE_DIALOG, async (_event, opts) => {
-    const result = await dialog.showSaveDialog(opts || {});
-    return result;
+    return await dialog.showSaveDialog(opts || {});
   });
 
   // --- Download / write file ---
@@ -67,29 +73,453 @@ export function initializeIpcHandlers(): void {
     os: process.platform,
     arch: process.arch,
   }));
+
+  // --- Window management ---
+  ipcMain.handle(IPC.WINDOW_OPEN, async (_event, { name, options }) => {
+    switch (name) {
+      case "recorder":
+        await createRecorderWindow(options?.sourceId);
+        return true;
+      case "camera":
+        await createCameraWindow();
+        return true;
+      case "editor":
+        await createEditorWindow(options?.editorType);
+        return true;
+      case "sourcePicker":
+        await createSourcePickerWindow();
+        return true;
+      default:
+        return false;
+    }
+  });
+
+  ipcMain.handle(IPC.WINDOW_CLOSE, (_event, name) => {
+    windowManager.close(name);
+    return true;
+  });
+
+  ipcMain.handle(IPC.WINDOW_SEND, (_event, { name, channel, args }) => {
+    return windowManager.sendTo(name, channel, ...args);
+  });
 }
 
 /**
  * Central message handler — mirrors the Background service worker's messageRouter.
  * Routes messages by `type` to the appropriate handler.
  */
-async function handleMessage(message: { type: string; [key: string]: any }): Promise<any> {
+async function handleMessage(
+  message: { type: string; [key: string]: any },
+  event: Electron.IpcMainInvokeEvent
+): Promise<any> {
   const { type, ...payload } = message;
 
   switch (type) {
+    // --- Platform info ---
     case "get-platform-info":
       return { os: process.platform, arch: process.arch };
 
     case "available-memory":
       return { memory: process.getSystemMemoryInfo?.() || {} };
 
+    case "is-pinned":
+      return true; // Always "pinned" in desktop app
+
+    // --- Auth (stub — cloud features not ported yet) ---
     case "check-auth-status":
       return electronStore.get("authStatus") || { authenticated: false };
 
+    case "handle-login":
+    case "handle-logout":
+    case "refresh-auth":
+      return { success: false, message: "Cloud features not available in desktop app" };
+
+    // --- Recording lifecycle ---
+    case "desktop-capture":
+      return await handleDesktopCapture();
+
+    case "start-recording":
+      return await handleStartRecording(payload);
+
+    case "stop-recording-tab":
+      return handleForwardToRecorder(message);
+
+    case "pause-recording-tab":
+    case "resume-recording-tab":
+      return handleForwardToRecorder(message);
+
+    case "cancel-recording":
+      return handleCancelRecording();
+
+    case "restart-recording-tab":
+      return handleForwardToRecorder(message);
+
+    case "new-chunk":
+      return handleForwardToRecorder(message);
+
+    case "recording-complete":
+      return await handleRecordingComplete(payload);
+
+    case "recording-error":
+      console.error("[recording-error]", payload);
+      return { ok: true };
+
+    case "check-recording": {
+      const recording = electronStore.get("recording");
+      return { recording: Boolean(recording?.recording) };
+    }
+
+    // --- Recording state sync ---
+    case "sync-recording-state": {
+      const state = electronStore.get([
+        "recording", "paused", "recordingStartTime",
+        "pausedAt", "totalPausedMs", "pendingRecording",
+      ]);
+      return {
+        recording: Boolean(state.recording),
+        paused: Boolean(state.paused),
+        recordingStartTime: state.recordingStartTime || null,
+        pausedAt: state.pausedAt || null,
+        totalPausedMs: state.totalPausedMs || 0,
+        pendingRecording: Boolean(state.pendingRecording),
+      };
+    }
+
+    case "register-recording-session":
+      return { ok: true, session: payload.session || {} };
+
+    case "clear-recording-session":
+      return { ok: true };
+
+    case "restore-recording-session": {
+      const { recorderSession } = electronStore.get(["recorderSession"]);
+      return { recorderSession: recorderSession || null };
+    }
+
+    // --- Chunk management ---
+    case "force-processing":
+      return handleForwardToRecorder(message);
+
+    case "clear-recordings":
+      return handleForwardToRecorder(message);
+
+    // --- File operations ---
+    case "write-file":
+      return await handleWriteFile(payload);
+
+    case "request-download":
+      return await handleRequestDownload(payload);
+
+    case "indexed-db-download":
+      return handleForwardToRecorder(message);
+
+    // --- Editor ---
+    case "video-ready":
+      return handleForwardToWindow("editor", message);
+
+    case "editor-ready":
+      return { ok: true };
+
+    case "prepare-open-editor":
+      await createEditorWindow();
+      return { ok: true };
+
+    case "prepare-editor-existing":
+      return { ok: true };
+
+    // --- Window/tab management (adapted for Electron) ---
+    case "get-tab-id":
+      return { tabId: null }; // No tab concept in Electron
+
+    case "set-surface":
+      electronStore.set({ surface: payload.surface });
+      return { ok: true };
+
+    case "set-mic-active-tab":
+      electronStore.set({ micActive: payload.active });
+      return { ok: true };
+
+    case "resize-window": {
+      const mainWin = windowManager.get("main");
+      if (mainWin && payload.width && payload.height) {
+        mainWin.setSize(payload.width, payload.height);
+      }
+      return { ok: true };
+    }
+
+    case "focus-this-tab": {
+      const mainWin = windowManager.get("main");
+      if (mainWin) mainWin.focus();
+      return { ok: true };
+    }
+
+    // --- External links (open in default browser) ---
+    case "review-screenity":
+    case "follow-twitter":
+    case "pricing":
+    case "open-processing-info":
+    case "upgrade-info":
+    case "trim-info":
+    case "join-waitlist":
+    case "chrome-update-info":
+    case "open-help":
+    case "memory-limit-help":
+    case "open-home":
+    case "report-bug":
+    case "handle-reactivate":
+    case "handle-upgrade":
+    case "open-account-settings":
+    case "open-support":
+      return handleOpenExternalLink(type);
+
+    // --- PiP ---
+    case "pip-started":
+      electronStore.set({ pip: true });
+      return { ok: true };
+
+    case "pip-ended":
+    case "turn-off-pip":
+      electronStore.set({ pip: false });
+      return { ok: true };
+
+    // --- Permissions (always granted in Electron) ---
+    case "on-get-permissions":
+    case "check-capture-permissions":
+      return { hasPermission: true, canRecord: true };
+
+    case "extension-media-permissions":
+      return { ok: true };
+
+    // --- Alarms (use setTimeout in Electron) ---
+    case "add-alarm-listener":
+    case "clear-recording-alarm":
+      return { ok: true };
+
+    // --- Audio beep ---
+    case "play-beep":
+      handleForwardToWindow("main", { type: "play-beep" });
+      return { ok: true };
+
+    // --- Misc ---
+    case "set-tab-auto-discardable":
+      return { ok: true }; // No-op in Electron
+
+    case "check-banner-support": {
+      const { bannerSupport } = electronStore.get(["bannerSupport"]);
+      return { bannerSupport: Boolean(bannerSupport) };
+    }
+
+    case "hide-banner":
+      electronStore.set({ bannerSupport: false });
+      broadcastMessage({ type: "hide-banner" });
+      return { ok: true };
+
+    case "time-warning":
+    case "time-stopped":
+    case "preparing-recording":
+      broadcastMessage(message);
+      return { ok: true };
+
+    case "show-toast":
+      broadcastMessage(message);
+      return { ok: true };
+
+    case "click-event":
+      return handleClickEvent(payload);
+
+    case "get-monitor-for-window":
+      return handleGetMonitorForWindow();
+
+    case "handle-restart":
+    case "handle-dismiss":
+    case "reset-active-tab":
+    case "reset-active-tab-restart":
+    case "restarted":
+    case "backup-created":
+    case "stop-recording-tab-backup":
+    case "restore-recording":
+    case "check-restore":
+    case "reopen-popup-multi":
+    case "get-streaming-data":
+    case "dismiss-recording-tab":
+    case "copy-to-clipboard":
+      // These are either no-ops or need further porting
+      return { ok: true };
+
+    // --- Cloud features (stubs) ---
+    case "save-to-drive":
+    case "save-to-drive-fallback":
+    case "fetch-videos":
+    case "check-storage-quota":
+    case "finish-multi-recording":
+    case "create-video-project":
+      return { success: false, message: "Cloud features not available in desktop app" };
+
+    // --- Project management (local) ---
+    case "project-load":
+    case "project-save":
+    case "project-list":
+      // Forward to local services — will be fully wired in Phase 3
+      return { success: false, error: "Not yet implemented" };
+
     default:
-      // For unhandled messages, return a no-op response.
-      // Handlers will be added incrementally as features are ported.
       console.warn(`[ipc] Unhandled message type: ${type}`);
       return { error: `Unhandled message type: ${type}` };
   }
+}
+
+// --- Handler implementations ---
+
+async function handleDesktopCapture(): Promise<any> {
+  await createSourcePickerWindow();
+  return { ok: true };
+}
+
+async function handleStartRecording(payload: any): Promise<any> {
+  const sourceId = payload.sourceId;
+  electronStore.set({
+    recording: true,
+    paused: false,
+    recordingStartTime: Date.now(),
+    totalPausedMs: 0,
+    pendingRecording: false,
+  });
+
+  if (sourceId) {
+    await createRecorderWindow(sourceId);
+  } else {
+    // Show source picker first
+    await createSourcePickerWindow();
+  }
+
+  return { ok: true };
+}
+
+function handleCancelRecording(): any {
+  electronStore.set({
+    recording: false,
+    paused: false,
+    pendingRecording: false,
+  });
+
+  // Tell recorder to stop
+  handleForwardToRecorder({ type: "cancel-recording" });
+
+  // Close recorder window
+  windowManager.close("recorder");
+  windowManager.close("camera");
+
+  return { ok: true };
+}
+
+async function handleRecordingComplete(payload: any): Promise<any> {
+  electronStore.set({
+    recording: false,
+    paused: false,
+  });
+
+  // Open editor
+  await createEditorWindow(payload.editorType || "sandbox");
+
+  return { ok: true };
+}
+
+async function handleWriteFile(payload: any): Promise<any> {
+  const { data, filename } = payload;
+  const result = await dialog.showSaveDialog({
+    defaultPath: filename || "recording",
+  });
+
+  if (result.canceled || !result.filePath) {
+    return { success: false, canceled: true };
+  }
+
+  const buffer = Buffer.from(data, "base64");
+  fs.writeFileSync(result.filePath, buffer);
+  return { success: true, filePath: result.filePath };
+}
+
+async function handleRequestDownload(payload: any): Promise<any> {
+  const { base64, title } = payload;
+  const result = await dialog.showSaveDialog({
+    defaultPath: title || "download",
+  });
+
+  if (result.canceled || !result.filePath) {
+    return { success: false, canceled: true };
+  }
+
+  const buffer = Buffer.from(base64, "base64");
+  fs.writeFileSync(result.filePath, buffer);
+  return { success: true, filePath: result.filePath };
+}
+
+const EXTERNAL_LINKS: Record<string, string> = {
+  "review-screenity": "https://screenity.io/",
+  "follow-twitter": "https://alyssax.substack.com/",
+  "pricing": "https://screenity.io/pro",
+  "open-processing-info": "https://help.screenity.io/editing-and-exporting/dJRFpGq56JFKC7k8zEvsqb/why-is-there-a-5-minute-limit-for-editing/ddy4e4TpbnrFJ8VoRT37tQ",
+  "upgrade-info": "https://help.screenity.io/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-screenity/6kdB6qru6naVD8ZLFvX3m9",
+  "trim-info": "https://help.screenity.io/editing-and-exporting/dJRFpGq56JFKC7k8zEvsqb/how-to-cut-trim-or-mute-parts-of-your-video/svNbM7YHYY717MuSWXrKXH",
+  "join-waitlist": "https://tally.so/r/npojNV",
+  "chrome-update-info": "https://help.screenity.io/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-screenity/6kdB6qru6naVD8ZLFvX3m9",
+  "open-help": "https://help.screenity.io/",
+  "memory-limit-help": "https://help.screenity.io/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/what-does-%E2%80%9Cmemory-limit-reached%E2%80%9D-mean-when-recording/8WkwHbt3puuXunYqQnyPcb",
+  "open-home": "https://screenity.io/",
+  "report-bug": "https://tally.so/r/3ElpXq",
+  "handle-reactivate": "https://screenity.io/",
+  "handle-upgrade": "https://screenity.io/pro",
+  "open-account-settings": "https://screenity.io/",
+  "open-support": "https://tally.so/r/310MNg",
+};
+
+function handleOpenExternalLink(type: string): any {
+  const url = EXTERNAL_LINKS[type];
+  if (url) {
+    openExternalURL(url);
+  }
+  return { ok: true };
+}
+
+function handleForwardToRecorder(message: any): any {
+  const sent = windowManager.sendTo("recorder", "message", message);
+  if (!sent) {
+    console.warn(`[ipc] Recorder window not available for message: ${message.type}`);
+  }
+  return { ok: sent };
+}
+
+function handleForwardToWindow(name: string, message: any): any {
+  const sent = windowManager.sendTo(name, "message", message);
+  return { ok: sent };
+}
+
+function broadcastMessage(message: any): void {
+  for (const [, entry] of windowManager.getAll()) {
+    if (!entry.window.isDestroyed()) {
+      entry.window.webContents.send("message", message);
+    }
+  }
+}
+
+function handleClickEvent(payload: any): any {
+  const { x, y, surface, region } = payload.payload || payload;
+  const click = { x, y, surface, region, timestamp: Date.now() };
+  const existing = electronStore.get({ clickEvents: [] });
+  electronStore.set({ clickEvents: [...(existing.clickEvents || []), click] });
+  return { ok: true };
+}
+
+function handleGetMonitorForWindow(): any {
+  const displays = screen.getAllDisplays().map((d) => ({
+    id: String(d.id),
+    bounds: d.bounds,
+  }));
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  return {
+    monitorId: String(primaryDisplay.id),
+    monitorBounds: primaryDisplay.bounds,
+    displays,
+  };
 }

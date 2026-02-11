@@ -1,8 +1,8 @@
 import React from "react";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 // Icons
 import { Stroke1Icon, Stroke2Icon, Stroke3Icon } from "./SVG";
-// Context
 
 // Components
 import TooltipWrap from "./TooltipWrap";

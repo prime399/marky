@@ -40,7 +40,11 @@ export const electronStore = {
     const changes: Record<string, { oldValue?: any; newValue: any }> = {};
     for (const [key, newValue] of Object.entries(items)) {
       const oldValue = store.get(key);
-      store.set(key, newValue);
+      if (newValue === undefined) {
+        store.delete(key);
+      } else {
+        store.set(key, newValue);
+      }
       changes[key] = { oldValue, newValue };
     }
     // Broadcast changes to all renderer windows

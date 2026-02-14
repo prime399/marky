@@ -92,6 +92,7 @@ const Recorder = () => {
 
   const isRecording = useRef(false);
   const pausedStateRef = useRef(false);
+  const electronSourceId = useRef(null);
 
   // Keep-alive mechanism to prevent Chrome from freezing this background tab
   const keepAliveAudioCtx = useRef(null);
@@ -361,6 +362,13 @@ const Recorder = () => {
       backupRef.current = !!result.backup;
       debug("Loaded backup flag from storage", backupRef.current);
     });
+  }, []);
+
+  // In Electron, self-initialize on mount — no "loaded" message arrives
+  useEffect(() => {
+    if (!window.electronAPI) return;
+    debug("Electron recorder: requesting streaming data on mount");
+    chrome.runtime.sendMessage({ type: "get-streaming-data" });
   }, []);
 
   async function startRecording() {
@@ -835,6 +843,17 @@ const Recorder = () => {
     debug("stopRecording()");
     isFinishing.current = true;
     isRecording.current = false;
+
+    // Persist recording duration before clearing timing state
+    if (recordingStartTime.current) {
+      const durationMs = Date.now() - recordingStartTime.current;
+      try {
+        await chrome.storage.local.set({ recordingDuration: durationMs });
+        debug("Persisted recordingDuration", durationMs);
+      } catch (err) {
+        debugWarn("Failed to persist recordingDuration", err);
+      }
+    }
 
     // Stop the session heartbeat and persist final state
     stopSessionHeartbeat();
@@ -1354,7 +1373,10 @@ const Recorder = () => {
     try {
       if (data.recordingType === "camera") {
         debug("Streaming camera recording");
-        startStream(data, null, null, permissions, permissions2);
+        await startStream(data, null, null, permissions, permissions2);
+      } else if (electronSourceId.current) {
+        debug("Streaming with Electron sourceId", electronSourceId.current);
+        await startStream(data, electronSourceId.current, null, permissions, permissions2);
       } else if (!isTab.current) {
         let captureTypes = ["screen", "window", "tab", "audio"];
         if (tabPreferred.current) {
@@ -1460,8 +1482,26 @@ const Recorder = () => {
           isTab.current = false;
         }
         chrome.runtime.sendMessage({ type: "get-streaming-data" });
+      } else if (request.type === "set-source-id") {
+        // Fallback: if this arrives after mount, store and request streaming data
+        if (!electronSourceId.current) {
+          electronSourceId.current = request.sourceId;
+          debug("Stored Electron sourceId (late arrival)", request.sourceId);
+          chrome.runtime.sendMessage({ type: "get-streaming-data" });
+        }
       } else if (request.type === "streaming-data") {
-        startStreaming(JSON.parse(request.data));
+        const data = JSON.parse(request.data);
+        if (data.activeSourceId) {
+          electronSourceId.current = data.activeSourceId;
+          debug("Got Electron sourceId from streaming data", data.activeSourceId);
+        }
+        void (async () => {
+          await startStreaming(data);
+          if (electronSourceId.current) {
+            debug("Electron: auto-starting recording after stream setup");
+            startRecording();
+          }
+        })();
       } else if (request.type === "start-recording-tab") {
         startRecording();
       } else if (request.type === "restart-recording-tab") {

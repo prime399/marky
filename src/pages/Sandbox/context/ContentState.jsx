@@ -598,6 +598,16 @@ const ContentState = (props) => {
     }
   }, []);
 
+  // In Electron, chunks are already in IndexedDB — load them directly on mount.
+  // In the extension, the background script sends chunks via messages instead.
+  useEffect(() => {
+    if (!window.electronAPI) return;
+
+    buildBlobFromChunks().catch((err) => {
+      console.error("Failed to build blob from IndexedDB chunks:", err);
+    });
+  }, []);
+
   const makeVideoTab = (sendResponse = null, message) => {
     if (makeVideoCheck.current) return;
     makeVideoCheck.current = true;

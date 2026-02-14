@@ -114,6 +114,9 @@ async function handleMessage(
   event: Electron.IpcMainInvokeEvent
 ): Promise<any> {
   const { type, ...payload } = message;
+  if (["video-ready", "stop-recording-tab", "recording-complete", "navigate-to-editor"].includes(type)) {
+    console.log(`[ipc] handleMessage type="${type}"`);
+  }
 
   switch (type) {
     // --- Platform info ---
@@ -223,7 +226,7 @@ async function handleMessage(
 
     // --- Editor ---
     case "video-ready":
-      return handleForwardToWindow("editor", message);
+      return handleVideoReady();
 
     case "editor-ready":
       return { ok: true };
@@ -353,6 +356,8 @@ async function handleMessage(
     case "check-restore":
     case "reopen-popup-multi":
     case "get-streaming-data":
+      return handleGetStreamingData();
+
     case "dismiss-recording-tab":
     case "copy-to-clipboard":
       // These are either no-ops or need further porting
@@ -391,6 +396,7 @@ async function handleSourceSelected(payload: any): Promise<any> {
     recordingStartTime: Date.now(),
     totalPausedMs: 0,
     pendingRecording: false,
+    activeSourceId: sourceId,
   });
 
   await createRecorderWindow(sourceId);
@@ -450,18 +456,26 @@ function handleCancelRecording(): any {
   return { ok: true };
 }
 
-async function handleRecordingComplete(payload: any): Promise<any> {
+async function handleVideoReady(): Promise<any> {
+  console.log("[ipc] handleVideoReady() called");
   electronStore.set({
     recording: false,
     paused: false,
   });
 
-  // Tell the main window to navigate to the editor page
-  const editorType = payload.editorType || "sandbox";
-  windowManager.sendTo("main", "message", {
+  // Navigate the main window to the editor BEFORE closing the
+  // recorder — closing windows can trigger async destruction that
+  // races with the sendTo call.
+  const editorType = "sandbox";
+  const sent = windowManager.sendTo("main", "message", {
     type: "navigate-to-editor",
     editorType,
   });
+  console.log("[ipc] navigate-to-editor sent to main:", sent);
+
+  // Close the recorder window — its job is done
+  windowManager.close("recorder");
+  windowManager.close("camera");
 
   // Resize main window for editor
   const mainWin = windowManager.get("main");
@@ -470,6 +484,19 @@ async function handleRecordingComplete(payload: any): Promise<any> {
     mainWin.center();
   }
 
+  return { ok: true };
+}
+
+async function handleRecordingComplete(payload: any): Promise<any> {
+  electronStore.set({
+    recording: false,
+    paused: false,
+  });
+
+  // In the Playground flow, handleVideoReady already navigated the main
+  // window to the editor and resized it.  ContentState sends
+  // "recording-complete" after it finishes processing the video — by that
+  // point the editor is already loaded, so we just acknowledge.
   return { ok: true };
 }
 
@@ -527,6 +554,43 @@ function handleOpenExternalLink(type: string): any {
   if (url) {
     openExternalURL(url);
   }
+  return { ok: true };
+}
+
+async function handleGetStreamingData(): Promise<any> {
+  const {
+    micActive,
+    defaultAudioInput,
+    defaultAudioOutput,
+    defaultVideoInput,
+    systemAudio,
+    recordingType,
+    activeSourceId,
+  } = electronStore.get([
+    "micActive",
+    "defaultAudioInput",
+    "defaultAudioOutput",
+    "defaultVideoInput",
+    "systemAudio",
+    "recordingType",
+    "activeSourceId",
+  ]);
+
+  const data = {
+    micActive: micActive ?? false,
+    defaultAudioInput: defaultAudioInput ?? "none",
+    defaultAudioOutput: defaultAudioOutput ?? "none",
+    defaultVideoInput: defaultVideoInput ?? "none",
+    systemAudio: systemAudio ?? true,
+    recordingType: recordingType ?? "screen",
+    activeSourceId: activeSourceId ?? null,
+  };
+
+  windowManager.sendTo("recorder", "message", {
+    type: "streaming-data",
+    data: JSON.stringify(data),
+  });
+
   return { ok: true };
 }
 

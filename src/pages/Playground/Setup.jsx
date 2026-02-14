@@ -110,11 +110,15 @@ const Setup = () => {
   useEffect(() => {
     if (!isElectron) return;
     const unsub = api.on("message", (msg) => {
+      console.log("[Setup] received message:", msg.type);
       if (msg.type === "navigate-to-editor") {
+        console.log("[Setup] navigating to editor:", msg.editorType);
+        setStopPending(false);
         const editorPage = msg.editorType || "sandbox";
         window.location.href = `${editorPage}.html`;
       }
       if (msg.type === "recording-cancelled") {
+        setStopPending(false);
         setView("sourcePicker");
         setRecordingTime(0);
         setPaused(false);
@@ -178,21 +182,30 @@ const Setup = () => {
 
     setStopError("");
     setStopPending(true);
-    try {
-      const res = await api.invoke("message", { type: "stop-recording-tab" });
 
-      // If the recorder window isn't ready yet, the main process returns { ok: false }.
-      if (res && res.ok === false) {
-        await new Promise((r) => setTimeout(r, 250));
-        const res2 = await api.invoke("message", { type: "stop-recording-tab" });
-        if (res2 && res2.ok === false) {
-          setStopError("Couldn't stop recording yet. Please try again.");
-        }
+    const res = await api.invoke("message", { type: "stop-recording-tab" });
+
+    // If the recorder window isn't ready yet, the main process returns { ok: false }.
+    if (res && res.ok === false) {
+      await new Promise((r) => setTimeout(r, 250));
+      const res2 = await api.invoke("message", { type: "stop-recording-tab" });
+      if (res2 && res2.ok === false) {
+        setStopError("Couldn't stop recording yet. Please try again.");
+        setStopPending(false);
+        return;
       }
-      // Main process will send navigate-to-editor on success.
-    } finally {
-      setStopPending(false);
     }
+    // stopPending stays true — cleared when navigate-to-editor or
+    // recording-cancelled arrives via the message listener.
+    // Safety timeout: if nothing happens within 30s, unlock the button.
+    setTimeout(() => {
+      setStopPending((current) => {
+        if (current) {
+          setStopError("Recording stopped but editor didn't open. Try again.");
+        }
+        return false;
+      });
+    }, 30000);
   };
 
   const handlePauseResume = async () => {

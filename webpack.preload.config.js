@@ -3,6 +3,7 @@ const path = require("path");
 module.exports = {
   mode: process.env.NODE_ENV || "production",
   target: "electron-preload",
+  devtool: "source-map",
   entry: {
     preload: path.join(__dirname, "electron", "preload.ts"),
   },

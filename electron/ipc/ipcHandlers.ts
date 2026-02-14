@@ -9,6 +9,7 @@ import {
   createSourcePickerWindow,
   openExternalURL,
 } from "../windows/appWindows";
+import { navigateMainWindow } from "../windows/mainWindow";
 import * as fs from "fs";
 
 export function initializeIpcHandlers(): void {
@@ -168,7 +169,7 @@ async function handleMessage(
       return await handleSourceSelected(payload);
 
     case "source-cancelled":
-      windowManager.close("sourcePicker");
+      // Source picker is inline — no separate window to close
       return { ok: true };
 
     case "check-recording": {
@@ -228,7 +229,11 @@ async function handleMessage(
       return { ok: true };
 
     case "prepare-open-editor":
-      await createEditorWindow();
+      // Navigate main window to editor instead of opening separate window
+      windowManager.sendTo("main", "message", {
+        type: "navigate-to-editor",
+        editorType: "sandbox",
+      });
       return { ok: true };
 
     case "prepare-editor-existing":
@@ -379,7 +384,6 @@ async function handleMessage(
 
 async function handleSourceSelected(payload: any): Promise<any> {
   const { sourceId } = payload;
-  windowManager.close("sourcePicker");
 
   electronStore.set({
     recording: true,
@@ -391,7 +395,7 @@ async function handleSourceSelected(payload: any): Promise<any> {
 
   await createRecorderWindow(sourceId);
 
-  // Also notify the main window that recording has started
+  // Notify the main window that recording has started
   windowManager.sendTo("main", "message", {
     type: "recording-started",
     sourceId,
@@ -401,7 +405,8 @@ async function handleSourceSelected(payload: any): Promise<any> {
 }
 
 async function handleDesktopCapture(): Promise<any> {
-  await createSourcePickerWindow();
+  // Source picker is now inline in the playground page — just notify main window
+  windowManager.sendTo("main", "message", { type: "show-source-picker" });
   return { ok: true };
 }
 
@@ -418,8 +423,8 @@ async function handleStartRecording(payload: any): Promise<any> {
   if (sourceId) {
     await createRecorderWindow(sourceId);
   } else {
-    // Show source picker first
-    await createSourcePickerWindow();
+    // Source picker is inline in the playground page
+    windowManager.sendTo("main", "message", { type: "show-source-picker" });
   }
 
   return { ok: true };
@@ -439,6 +444,9 @@ function handleCancelRecording(): any {
   windowManager.close("recorder");
   windowManager.close("camera");
 
+  // Notify main window to go back to home view
+  windowManager.sendTo("main", "message", { type: "recording-cancelled" });
+
   return { ok: true };
 }
 
@@ -448,8 +456,19 @@ async function handleRecordingComplete(payload: any): Promise<any> {
     paused: false,
   });
 
-  // Open editor
-  await createEditorWindow(payload.editorType || "sandbox");
+  // Tell the main window to navigate to the editor page
+  const editorType = payload.editorType || "sandbox";
+  windowManager.sendTo("main", "message", {
+    type: "navigate-to-editor",
+    editorType,
+  });
+
+  // Resize main window for editor
+  const mainWin = windowManager.get("main");
+  if (mainWin && !mainWin.isDestroyed()) {
+    mainWin.setSize(1200, 800);
+    mainWin.center();
+  }
 
   return { ok: true };
 }

@@ -4,6 +4,13 @@ import { windowManager } from "./windowManager";
 
 const isDev = process.env.NODE_ENV === "development";
 
+function resolveRenderer(htmlFile: string): string {
+  if (isDev) {
+    return `http://localhost:3000/${htmlFile}`;
+  }
+  return path.join(__dirname, "..", "renderer", htmlFile);
+}
+
 export async function createMainWindow(): Promise<BrowserWindow> {
   const existing = windowManager.get("main");
   if (existing) {
@@ -11,13 +18,15 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     return existing;
   }
 
-  const preloadPath = path.join(__dirname, "..", "preload.js");
+  const startPage = "playground.html";
+
+  const preloadPath = path.join(__dirname, "preload.js");
 
   const win = new BrowserWindow({
-    width: 420,
-    height: 620,
+    width: 800,
+    height: 600,
     minWidth: 360,
-    minHeight: 500,
+    minHeight: 400,
     title: "Screenity",
     webPreferences: {
       preload: preloadPath,
@@ -30,10 +39,11 @@ export async function createMainWindow(): Promise<BrowserWindow> {
 
   windowManager.register("main", win);
 
+  const url = resolveRenderer(startPage);
   if (isDev) {
-    win.loadURL("http://localhost:3000/setup.html");
+    await win.loadURL(url);
   } else {
-    win.loadFile(path.join(__dirname, "..", "renderer", "setup.html"));
+    await win.loadFile(url);
   }
 
   win.once("ready-to-show", () => {
@@ -45,4 +55,19 @@ export async function createMainWindow(): Promise<BrowserWindow> {
   }
 
   return win;
+}
+
+/**
+ * Navigate the main window to a different page (e.g. playground.html, sandbox.html).
+ */
+export function navigateMainWindow(htmlFile: string): void {
+  const win = windowManager.get("main");
+  if (!win || win.isDestroyed()) return;
+
+  const url = resolveRenderer(htmlFile);
+  if (isDev) {
+    win.loadURL(url);
+  } else {
+    win.loadFile(url);
+  }
 }

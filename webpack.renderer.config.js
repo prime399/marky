@@ -86,7 +86,9 @@ const config = {
     filename: "[name].bundle.js",
     path: path.resolve(__dirname, "dist", "renderer"),
     clean: true,
-    publicPath: "./",
+    // In dev, webpack-dev-server expects a URL-path-like publicPath (e.g. "/"),
+    // otherwise HTML like "/playground.html" can 404.
+    publicPath: env.NODE_ENV === "development" ? "/" : "./",
   },
   module: {
     rules: [
@@ -189,6 +191,9 @@ if (env.NODE_ENV === "development") {
     port: 3000,
     hot: true,
     headers: { "Access-Control-Allow-Origin": "*" },
+    devMiddleware: {
+      publicPath: "/",
+    },
   };
 } else {
   config.optimization = {

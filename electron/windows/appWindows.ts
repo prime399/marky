@@ -15,7 +15,7 @@ export async function createRecorderWindow(sourceId?: string): Promise<BrowserWi
   const existing = windowManager.get("recorder");
   if (existing) return existing;
 
-  const preloadPath = path.join(__dirname, "..", "preload.js");
+  const preloadPath = path.join(__dirname, "preload.js");
 
   const win = new BrowserWindow({
     width: 1,
@@ -57,7 +57,7 @@ export async function createCameraWindow(): Promise<BrowserWindow> {
     return existing;
   }
 
-  const preloadPath = path.join(__dirname, "..", "preload.js");
+  const preloadPath = path.join(__dirname, "preload.js");
 
   const win = new BrowserWindow({
     width: 200,
@@ -96,7 +96,7 @@ export async function createEditorWindow(editorType: "sandbox" | "editor" | "edi
     return existing;
   }
 
-  const preloadPath = path.join(__dirname, "..", "preload.js");
+  const preloadPath = path.join(__dirname, "preload.js");
 
   const win = new BrowserWindow({
     width: 1200,
@@ -136,7 +136,7 @@ export async function createSourcePickerWindow(): Promise<BrowserWindow> {
     return existing;
   }
 
-  const preloadPath = path.join(__dirname, "..", "preload.js");
+  const preloadPath = path.join(__dirname, "preload.js");
 
   const win = new BrowserWindow({
     width: 800,

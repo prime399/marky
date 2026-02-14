@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 
+const isElectron = !!(window.electronAPI);
+
 const Setup = () => {
   const [setupComplete, setSetupComplete] = useState(false);
 
   useEffect(() => {
-    // Skip content script injection in Electron (not applicable)
-    const isElectron = !!(window.electronAPI);
     if (isElectron) {
-      // Only inject font CSS
       const style = document.createElement("link");
       style.rel = "stylesheet";
       style.type = "text/css";
@@ -24,14 +23,12 @@ const Setup = () => {
     script.async = true;
     document.body.appendChild(script);
 
-    // Also inject CSS
     const style = document.createElement("link");
     style.rel = "stylesheet";
     style.type = "text/css";
     style.href = chrome.runtime.getURL("assets/fonts/fonts.css");
     document.body.appendChild(style);
 
-    // Return
     return () => {
       document.body.removeChild(script);
       document.body.removeChild(style);
@@ -49,6 +46,41 @@ const Setup = () => {
       }
     });
   }, []);
+
+  const handleGetStarted = () => {
+    if (isElectron) {
+      // Mark setup as done and navigate to playground in same window
+      chrome.storage.local.set({ setupDone: true });
+      window.location.href = "playground.html";
+    }
+  };
+
+  // Electron: show a simple welcome screen with Get Started button
+  if (isElectron) {
+    return (
+      <div className="setupBackground">
+        <div className="setupContainer center">
+          <div className="setupText center">
+            <img
+              src={chrome.runtime.getURL("assets/logo-text.svg")}
+              style={{ width: 160, marginBottom: 24 }}
+              alt="Screenity"
+            />
+            <div className="setupTitle">
+              {chrome.i18n.getMessage("setupCompleteTitle") || "Welcome to Screenity"}
+            </div>
+            <div className="setupDescription" style={{ marginBottom: 24 }}>
+              The free and privacy-friendly screen recorder.
+            </div>
+            <button className="getStartedBtn" onClick={handleGetStarted}>
+              Get Started
+            </button>
+          </div>
+        </div>
+        <style>{electronStyles}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="setupBackground">
@@ -300,5 +332,74 @@ const Setup = () => {
     </div>
   );
 };
+
+const electronStyles = `
+  body {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background-color: #F6F7FB !important;
+    font-family: 'Satoshi-Medium', sans-serif;
+  }
+  .setupBackground {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .setupContainer {
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    height: fit-content;
+    background-color: #fff;
+    border-radius: 24px;
+    padding: 48px 56px;
+    font-family: 'Satoshi-Medium', sans-serif;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .setupText.center {
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .setupTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #29292F;
+    font-family: 'Satoshi-Bold', sans-serif;
+    letter-spacing: -0.5px;
+  }
+  .setupDescription {
+    color: #6E7684;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .center { text-align: center; }
+  .setupContainer.center { width: fit-content; }
+  .getStartedBtn {
+    border: none;
+    background: #4C7DE2;
+    color: #fff;
+    padding: 12px 36px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-family: 'Satoshi-Bold', sans-serif;
+    font-weight: bold;
+    letter-spacing: -0.2px;
+    transition: background 0.15s;
+  }
+  .getStartedBtn:hover {
+    background: #3A6AD4;
+  }
+`;
 
 export default Setup;

@@ -35,7 +35,7 @@
     "test:phase2:unit": "node --test tests/phase2/timelineModel.unit.test.js",
     "test:phase2:integration": "node --test tests/phase2/editorTimeline.integration.test.js",
     "test:phase2": "npm run test:phase2:unit && npm run test:phase2:integration",
-    "test:runtime": "node --test tests/runtime/uiRuntimeContracts.test.js",
+    "test:runtime": "node --test tests/runtime/*.test.js",
     "test:critical": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:runtime && npm run build"
   },
   "dependencies": {

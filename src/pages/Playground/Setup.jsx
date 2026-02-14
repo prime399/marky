@@ -17,6 +17,8 @@ const Setup = () => {
   const [loadingSources, setLoadingSources] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [stopPending, setStopPending] = useState(false);
+  const [stopError, setStopError] = useState("");
 
   const [audioDevices, setAudioDevices] = useState([]);
   const [videoDevices, setVideoDevices] = useState([]);
@@ -171,8 +173,26 @@ const Setup = () => {
   };
 
   const handleStopRecording = async () => {
-    await api.invoke("message", { type: "stop-recording-tab" });
-    // Main process will send navigate-to-editor
+    if (!isElectron) return;
+    if (stopPending) return;
+
+    setStopError("");
+    setStopPending(true);
+    try {
+      const res = await api.invoke("message", { type: "stop-recording-tab" });
+
+      // If the recorder window isn't ready yet, the main process returns { ok: false }.
+      if (res && res.ok === false) {
+        await new Promise((r) => setTimeout(r, 250));
+        const res2 = await api.invoke("message", { type: "stop-recording-tab" });
+        if (res2 && res2.ok === false) {
+          setStopError("Couldn't stop recording yet. Please try again.");
+        }
+      }
+      // Main process will send navigate-to-editor on success.
+    } finally {
+      setStopPending(false);
+    }
   };
 
   const handlePauseResume = async () => {
@@ -321,13 +341,21 @@ const Setup = () => {
           <button style={styles.controlBtn} onClick={handlePauseResume}>
             {paused ? "Resume" : "Pause"}
           </button>
-          <button style={styles.stopBtn} onClick={handleStopRecording}>
-            Stop
+          <button
+            style={{
+              ...styles.stopBtn,
+              ...(stopPending ? styles.stopBtnDisabled : {}),
+            }}
+            onClick={handleStopRecording}
+            disabled={stopPending}
+          >
+            {stopPending ? "Stopping..." : "Stop"}
           </button>
           <button style={styles.discardBtn} onClick={handleCancelRecording}>
             Discard
           </button>
         </div>
+        {stopError && <div style={styles.inlineError}>{stopError}</div>}
       </div>
       <style>{pageStyles}</style>
     </div>
@@ -557,6 +585,10 @@ const styles = {
     fontFamily: "inherit",
     fontWeight: "bold",
   },
+  stopBtnDisabled: {
+    opacity: 0.7,
+    cursor: "not-allowed",
+  },
   discardBtn: {
     border: "1px solid #D1D5DB",
     background: "#fff",
@@ -566,6 +598,12 @@ const styles = {
     fontSize: "14px",
     fontFamily: "inherit",
     color: "#9CA3AF",
+  },
+  inlineError: {
+    marginTop: "10px",
+    fontSize: "13px",
+    fontFamily: "inherit",
+    color: "#B42318",
   },
 };
 

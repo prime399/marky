@@ -1,26 +1,36 @@
 /**
- * chrome.i18n shim → loads _locales JSON files synchronously at init time
- * so getMessage() works immediately when called by React components.
+ * chrome.i18n shim for Electron.
+ *
+ * Loads locale messages at bundle time via webpack (no XHR), so we don't spam the
+ * dev console with 404s (e.g. en_US probing when only /en exists).
  */
 
 let messages: Record<string, { message: string }> = {};
 
-// Load messages synchronously so they're available before any React render
-(function loadMessagesSync() {
-  const locale = navigator.language?.replace("-", "_") || "en";
-  const candidates = [locale, locale.split("_")[0], "en"];
+// Resolve messages synchronously so they're available before any React render.
+// Webpack bundles the JSON, so we don't need to probe the dev server.
+(function loadMessages() {
+  const context = (require as any).context(
+    "../_locales",
+    true,
+    /messages\.json$/,
+  );
 
+  const byLocale: Record<string, any> = {};
+  for (const key of context.keys()) {
+    // keys look like "./en/messages.json" or "./pt_BR/messages.json"
+    const parts = key.split("/");
+    const locale = parts[1];
+    byLocale[locale] = context(key);
+  }
+
+  const uiLocale = navigator.language?.replace("-", "_") || "en";
+  const candidates = [uiLocale, uiLocale.split("_")[0], "en"];
   for (const candidate of candidates) {
-    try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", `./_locales/${candidate}/messages.json`, false); // synchronous
-      xhr.send();
-      if (xhr.status === 200) {
-        messages = JSON.parse(xhr.responseText);
-        return;
-      }
-    } catch {
-      continue;
+    const loaded = byLocale[candidate];
+    if (loaded) {
+      messages = loaded;
+      return;
     }
   }
 })();

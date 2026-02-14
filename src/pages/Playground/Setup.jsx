@@ -138,15 +138,18 @@ const Setup = () => {
         thumbnailSize: { width: 320, height: 180 },
       });
       setSources(result || []);
-      if (result?.length > 0 && !selectedId) {
-        const firstScreen = result.find((s) => s.id.startsWith("screen:"));
-        setSelectedId(firstScreen?.id || result[0].id);
+      if (result?.length > 0) {
+        setSelectedId((current) => {
+          if (current && result.some((s) => s.id === current)) return current;
+          const firstScreen = result.find((s) => s.id.startsWith("screen:"));
+          return firstScreen?.id || result[0].id;
+        });
       }
     } catch (err) {
       console.error("Failed to load sources:", err);
     }
     setLoadingSources(false);
-  }, [selectedId]);
+  }, []);
 
   // Auto-refresh sources while picker is open
   useEffect(() => {
@@ -154,7 +157,7 @@ const Setup = () => {
     loadSources();
     const interval = setInterval(loadSources, 2000);
     return () => clearInterval(interval);
-  }, [view]);
+  }, [view, loadSources]);
 
   const handleSourceShare = async () => {
     if (!selectedId) return;

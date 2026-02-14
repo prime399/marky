@@ -102,7 +102,7 @@
     "copy-webpack-plugin": "^7.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.2",
-    "electron": "^33.3.1",
+    "electron": "^40.4.1",
     "electron-builder": "^25.1.8",
     "fs-extra": "^10.1.0",
     "html-loader": "^3.1.0",

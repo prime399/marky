@@ -3,7 +3,7 @@ productName: Screenity
 copyright: Copyright © 2024 Screenity
 
 directories:
-  output: release
+  output: release-win
   buildResources: build-resources
 
 files:
@@ -32,7 +32,7 @@ mac:
     NSScreenCaptureUsageDescription: "Screenity needs screen recording permission."
 
 win:
-  icon: src/assets/favicon.png
+  icon: src/assets/favicon.ico
   target:
     - nsis
   publisherName: Screenity
@@ -40,7 +40,7 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
-  installerIcon: src/assets/favicon.png
+  installerIcon: src/assets/favicon.ico
 
 linux:
   icon: src/assets/favicon.png
